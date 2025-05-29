@@ -1,0 +1,1452 @@
+<?xml version="1.0" ?>
+<resource>
+  <object class="wxPanel" name="RootPanel">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <orient>wxVERTICAL</orient>
+          <object class="sizeritem">
+            <object class="wxBoxSizer">
+              <orient>wxHORIZONTAL</orient>
+              <object class="sizeritem">
+                <object class="wxPanel" name="StatusPanel">
+                  <fg>#00FF40</fg>
+                  <bg>#B71100</bg>
+                  <object class="wxBoxSizer">
+                    <orient>wxVERTICAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxStaticBoxSizer">
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxComboBox" name="cmbAxisName">
+                            <size>83,20</size>
+                            <content>
+                              <item>ANTON</item>
+                              <item>BURT</item>
+                              <item>CECIL</item>
+                              <item>DEBBY</item>
+                              <item>EUGEN</item>
+                              <item>FREDERICK</item>
+                              <item>SIMULATION</item>
+                            </content>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>4,2</size>
+                        </object>
+                        <label>Engine</label>
+                        <orient>wxHORIZONTAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="txtAxisPos">
+                            <size>60,20</size>
+                            <value>999,99 m</value>
+                            <font>
+                              <size>8</size>
+                              <style>normal</style>
+                              <weight>bold</weight>
+                              <underlined>0</underlined>
+                              <family>swiss</family>
+                              <face>Tahoma</face>
+                              <encoding>WINDOWS-1252</encoding>
+                            </font>
+                            <style>wxSUNKEN_BORDER|wxTE_RIGHT</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>2,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="txtAxisVel">
+                            <size>59,20</size>
+                            <value>99,99 m/s</value>
+                            <style>wxTE_RIGHT</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>2,2</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="txtAxisAmp">
+                            <size>44,20</size>
+                            <value>99.9 A</value>
+                            <style>wxTE_RIGHT</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>2,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBitmapButton" name="btnAxisMoveLeft">
+                            <size>25,21</size>
+                            <bitmap stock_id="wxART_GO_BACK"/>
+                            <selected stock_id="wxART_GO_BACK"/>
+                            <focus stock_id="wxART_GO_BACK"/>
+                            <disabled stock_id="wxART_GO_BACK"/>
+                            <hover stock_id="wxART_GO_BACK"/>
+                          </object>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxSlider" name="sldAxisVel">
+                            <size>155,20</size>
+                            <value>500</value>
+                            <min>0</min>
+                            <max>1000</max>
+                            <tickfreq>10</tickfreq>
+                            <linesize>2</linesize>
+                            <thumb>1</thumb>
+                            <tick>2</tick>
+                          </object>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBitmapButton" name="btnAxisMoveRight">
+                            <size>25,20</size>
+                            <bitmap stock_id="wxART_GO_FORWARD"/>
+                            <selected stock_id="wxART_GO_FORWARD"/>
+                            <focus stock_id="wxART_GO_FORWARD"/>
+                            <disabled stock_id="wxART_GO_FORWARD"/>
+                            <hover stock_id="wxART_GO_FORWARD"/>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="txtAxisError">
+                            <size>60,20</size>
+                            <value>F 999/99</value>
+                            <style>wxTE_CENTRE</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>8,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxToggleButton" name="btnAxisEnable">
+                            <size>50,20</size>
+                            <label>Enable</label>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>2,2</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxToggleButton" name="btnAxisReset">
+                            <size>50,20</size>
+                            <label>Reset</label>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="txtAxisTemp">
+                            <size>40,20</size>
+                            <value>99 C</value>
+                            <style>wxTE_RIGHT</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="txtTimeTick">
+                            <size>27,20</size>
+                            <value>99</value>
+                            <style>wxTE_RIGHT</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>7,5</size>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <orient>wxHORIZONTAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxPanel" name="BitPanel">
+                            <object class="wxBoxSizer">
+                              <orient>wxVERTICAL</orient>
+                              <object class="spacer">
+                                <size>30,5</size>
+                              </object>
+                              <object class="sizeritem">
+                                <object class="wxGridSizer">
+                                  <object class="spacer">
+                                    <size>1,20</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                    <object class="wxRadioButton" name="rbLeftEnd">
+                                      <label>left e-stop</label>
+                                      <font>
+                                        <size>8</size>
+                                        <style>normal</style>
+                                        <weight>normal</weight>
+                                        <underlined>0</underlined>
+                                        <family>swiss</family>
+                                        <face>Tahoma</face>
+                                        <encoding>WINDOWS-1252</encoding>
+                                      </font>
+                                      <style>wxRB_SINGLE</style>
+                                    </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                    <object class="wxRadioButton" name="rbRightEnd">
+                                      <label>right e-stop</label>
+                                      <style>wxRB_SINGLE</style>
+                                    </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                    <object class="wxRadioButton" name="rbBreak">
+                                      <label>break</label>
+                                      <style>wxRB_SINGLE</style>
+                                    </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                    <object class="wxRadioButton" name="rbPosition">
+                                      <label>position</label>
+                                      <style>wxRB_SINGLE</style>
+                                    </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                    <object class="wxRadioButton" name="rbReferenced">
+                                      <label>referenced</label>
+                                      <style>wxRB_SINGLE</style>
+                                    </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                    <object class="wxRadioButton" name="rbReady">
+                                      <label>ready</label>
+                                      <style>wxRB_SINGLE</style>
+                                    </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                    <object class="wxRadioButton" name="rbPowered">
+                                      <label>powered</label>
+                                      <style>wxRB_SINGLE</style>
+                                    </object>
+                                  </object>
+                                  <object class="spacer">
+                                    <size>75,10</size>
+                                  </object>
+                                  <cols>9</cols>
+                                  <rows>1</rows>
+                                  <hgap>7</hgap>
+                                </object>
+                              </object>
+                            </object>
+                            <bg>#B71100</bg>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                  </object>
+                </object>
+              </object>
+            </object>
+          </object>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="sizeritem">
+            <object class="wxPanel" name="SetupPosition">
+              <object class="wxStaticBoxSizer">
+                <object class="spacer">
+                  <size>10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="spacer">
+                      <size>20</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupPosEdit">
+                        <size>66,20</size>
+                        <label>Edit</label>
+                      </object>
+                    </object>
+                    <orient>wxHORIZONTAL</orient>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="spacer">
+                      <size>31,20</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupSetPos">
+                        <size>45,20</size>
+                        <label>set Pos</label>
+                        <fg>#FFFFFF</fg>
+                        <bg>#FF0000</bg>
+                      </object>
+                    </object>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxGridSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Hard Max</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupPosHardMax">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>User Max</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupPosUserMax">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Act Pos</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupPosIst">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>User Min</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupPosUserMin">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Hard Min</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupPosHardMin">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupPosWrite">
+                        <size>50,20</size>
+                        <label>Write</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupPosCancel">
+                        <size>50,20</size>
+                        <label>Cancel</label>
+                      </object>
+                    </object>
+                    <cols>2</cols>
+                    <rows>6</rows>
+                    <vgap>2</vgap>
+                    <hgap>26</hgap>
+                  </object>
+                </object>
+                <label>Positions</label>
+                <orient>wxVERTICAL</orient>
+                <object class="spacer">
+                  <size>1,9</size>
+                </object>
+              </object>
+            </object>
+            <option>0</option>
+          </object>
+          <object class="sizeritem">
+            <object class="wxPanel" name="SetupVel">
+              <object class="wxStaticBoxSizer">
+                <object class="spacer">
+                  <size>10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="spacer">
+                      <size>20</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupVelEdit">
+                        <size>66,20</size>
+                        <label>Edit</label>
+                      </object>
+                    </object>
+                    <orient>wxHORIZONTAL</orient>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>VelMaxMot</label>
+                        <fg>#FF0000</fg>
+                      </object>
+                    </object>
+                    <object class="spacer">
+                      <size>23,21</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupVelMaxMot">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxGridSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Vel Max</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupVelMax">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Acc Max</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupAccMax">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Dcc Max</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupDccMax">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Jerk</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupJerk">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Max Amp</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupMaxAmp">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupVelWrite">
+                        <size>50,20</size>
+                        <label>Write</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupVelCancel">
+                        <size>50,20</size>
+                        <label>Cancel</label>
+                      </object>
+                    </object>
+                    <cols>2</cols>
+                    <rows>6</rows>
+                    <vgap>2</vgap>
+                    <hgap>26</hgap>
+                  </object>
+                </object>
+                <label>Vel / Acc / Amp</label>
+                <orient>wxVERTICAL</orient>
+                <object class="spacer">
+                  <size>1,9</size>
+                </object>
+              </object>
+            </object>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+          <object class="sizeritem">
+            <object class="wxPanel" name="SetupGuide">
+              <object class="wxStaticBoxSizer">
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <orient>wxHORIZONTAL</orient>
+                        <object class="spacer">
+                          <size>5,2</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="txtAxisSetupGuidePos">
+                            <size>45,20</size>
+                            <value>9.999</value>
+                            <style>wxTE_RIGHT</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxToggleButton" name="btnAxisSetupGuideClutch">
+                            <size>75,20</size>
+                            <label>engaged</label>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxTextCtrl" name="txtAxisSetupGuideVel">
+                            <size>45,20</size>
+                            <value>999</value>
+                            <style>wxTE_RIGHT</style>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="spacer">
+                      <size>30,5</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer" name="btnAxisSetupGuideEnable">
+                            <object class="spacer">
+                              <size>5,2</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxTextCtrl" name="txtAxisSetupGuideError">
+                                <size>70,20</size>
+                                <value>F 199 / 99</value>
+                                <style>wxTE_RIGHT</style>
+                              </object>
+                            </object>
+                            <object class="spacer">
+                              <size>2</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxButton" name="btnAxisSetupGuideReset">
+                                <size>50,20</size>
+                                <label>Reset</label>
+                              </object>
+                            </object>
+                            <object class="spacer">
+                              <size>2</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxToggleButton" name="btnAxisSetupGuideEnable">
+                                <size>50,20</size>
+                                <label>Enable</label>
+                              </object>
+                            </object>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>20,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxGridSizer">
+                            <object class="spacer">
+                              <size>15,10</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rbSLeftEnd">
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rbSRightEnd">
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rbSBreak">
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rbSPosition">
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rbSReferenced">
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rbSReady">
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rbSPowered">
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                            <object class="spacer"/>
+                            <cols>9</cols>
+                            <rows>1</rows>
+                            <hgap>7</hgap>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>8,2</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <object class="spacer">
+                              <size>2,5</size>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxSlider" name="sldAxisSetupGuideVel">
+                                <size>185,15</size>
+                                <value>0</value>
+                                <min>-1000</min>
+                                <max>1000</max>
+                              </object>
+                            </object>
+                            <orient>wxHORIZONTAL</orient>
+                          </object>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxGridSizer">
+                            <object class="sizeritem">
+                              <object class="wxBitmapButton" name="btnAxisSetupGuideMoveLeft">
+                                <size>45,20</size>
+                                <bitmap stock_id="wxART_GO_BACK"/>
+                                <selected stock_id="wxART_GO_BACK"/>
+                                <focus stock_id="wxART_GO_BACK"/>
+                                <disabled stock_id="wxART_GO_BACK"/>
+                                <hover stock_id="wxART_GO_BACK"/>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxBitmapButton" name="btnAxisSetupGuideMoveStop">
+                                <size>45,20</size>
+                                <bitmap stock_id="wxART_CROSS_MARK"/>
+                                <selected stock_id="wxART_CROSS_MARK"/>
+                                <focus stock_id="wxART_CROSS_MARK"/>
+                                <disabled stock_id="wxART_CROSS_MARK"/>
+                                <hover stock_id="wxART_CROSS_MARK"/>
+                              </object>
+                            </object>
+                            <object class="sizeritem">
+                              <object class="wxBitmapButton" name="btnAxisSetupGuideMoveRight">
+                                <size>45,20</size>
+                                <bitmap stock_id="wxART_GO_FORWARD"/>
+                                <selected stock_id="wxART_GO_FORWARD"/>
+                                <focus stock_id="wxART_GO_FORWARD"/>
+                                <disabled stock_id="wxART_GO_FORWARD"/>
+                                <hover stock_id="wxART_GO_FORWARD"/>
+                              </object>
+                            </object>
+                            <hgap>28</hgap>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="spacer">
+                      <size>1</size>
+                    </object>
+                    <orient>wxVERTICAL</orient>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>6,1</size>
+                  <option>1</option>
+                  <flag>wxFIXED_MINSIZE</flag>
+                  <border>5</border>
+                </object>
+                <label>Guider</label>
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <orient>wxVERTICAL</orient>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <object class="spacer">
+                          <size>2,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxPanel">
+                            <bg>#C0C0C0</bg>
+                            <object class="wxBoxSizer">
+                              <orient>wxVERTICAL</orient>
+                              <object class="sizeritem">
+                                <object class="wxBoxSizer">
+                                  <object class="spacer">
+                                    <size>65,5</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                    <object class="wxButton" name="btnAxisSetupGuideSetup">
+                                      <size>66,20</size>
+                                      <label>Edit</label>
+                                    </object>
+                                  </object>
+                                  <orient>wxHORIZONTAL</orient>
+                                  <object class="spacer">
+                                    <size>60,10</size>
+                                  </object>
+                                </object>
+                              </object>
+                              <object class="spacer">
+                                <size>10,10</size>
+                              </object>
+                              <object class="sizeritem">
+                                <object class="wxBoxSizer">
+                                  <object class="spacer">
+                                    <size>12,2</size>
+                                  </object>
+                                  <orient>wxHORIZONTAL</orient>
+                                  <object class="sizeritem">
+                                    <object class="wxBoxSizer">
+                                      <orient>wxVERTICAL</orient>
+                                      <object class="spacer">
+                                        <size>10,0</size>
+                                      </object>
+                                      <object class="sizeritem">
+                                        <object class="wxGridSizer">
+                                          <object class="sizeritem">
+                                            <object class="wxStaticText">
+                                              <size>45,15</size>
+                                              <label>Pitch</label>
+                                            </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                            <object class="wxTextCtrl" name="txtAxisSetupGuidePitch">
+                                              <size>45,15</size>
+                                              <value>0</value>
+                                              <style>wxTE_RIGHT</style>
+                                            </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                            <object class="wxButton" name="btnAxisSetupGuideWrite">
+                                              <size>45,15</size>
+                                              <label>Write</label>
+                                            </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                            <object class="wxStaticText">
+                                              <size>45,15</size>
+                                              <label>Pos Max</label>
+                                            </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                            <object class="wxTextCtrl" name="txtAxisSetupGuidePosMax">
+                                              <size>45,15</size>
+                                              <value>0</value>
+                                              <style>wxTE_RIGHT</style>
+                                            </object>
+                                          </object>
+                                          <object class="spacer"/>
+                                          <object class="sizeritem">
+                                            <object class="wxStaticText">
+                                              <size>45,15</size>
+                                              <label>Pos Min</label>
+                                            </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                            <object class="wxTextCtrl" name="txtAxisSetupGuidePosMin">
+                                              <size>45,15</size>
+                                              <value>0</value>
+                                              <style>wxTE_RIGHT</style>
+                                            </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                            <object class="wxButton" name="btnAxisSetupGuideCancel">
+                                              <size>45,15</size>
+                                              <label>Cancel</label>
+                                            </object>
+                                          </object>
+                                          <cols>3</cols>
+                                          <rows>5</rows>
+                                          <vgap>3</vgap>
+                                          <hgap>15</hgap>
+                                        </object>
+                                      </object>
+                                      <object class="spacer">
+                                        <size>10,5</size>
+                                      </object>
+                                    </object>
+                                  </object>
+                                </object>
+                              </object>
+                            </object>
+                          </object>
+                        </object>
+                        <orient>wxVERTICAL</orient>
+                      </object>
+                    </object>
+                  </object>
+                </object>
+              </object>
+              <fg>#FFFFFF</fg>
+              <bg>#B71100</bg>
+            </object>
+          </object>
+          <object class="sizeritem">
+            <object class="wxPanel" name="SetupFilter">
+              <object class="wxStaticBoxSizer">
+                <object class="spacer">
+                  <size>10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="spacer">
+                      <size>20</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupFilterEdit">
+                        <size>66,20</size>
+                        <label>Edit</label>
+                      </object>
+                    </object>
+                    <orient>wxHORIZONTAL</orient>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Lag Error</label>
+                        <fg>#FF0000</fg>
+                      </object>
+                    </object>
+                    <object class="spacer">
+                      <size>29,21</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupFilterLagError">
+                        <size>50,20</size>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxGridSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Prop.</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupFilterP">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Integral</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupFilterI">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Derivate</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupFilterD">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Int. Lim.</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupFilterIL">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Rampform</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupFilterRampform">
+                        <size>50,20</size>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupFilterWrite">
+                        <size>50,20</size>
+                        <label>Write</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupFilterCancel">
+                        <size>50,20</size>
+                        <label>Cancel</label>
+                      </object>
+                    </object>
+                    <cols>2</cols>
+                    <rows>6</rows>
+                    <vgap>2</vgap>
+                    <hgap>23</hgap>
+                  </object>
+                </object>
+                <label>Filter</label>
+                <orient>wxVERTICAL</orient>
+                <object class="spacer">
+                  <size>2,9</size>
+                </object>
+              </object>
+            </object>
+          </object>
+          <object class="sizeritem">
+            <object class="wxPanel" name="SetupRope">
+              <object class="wxStaticBoxSizer">
+                <object class="spacer">
+                  <size>10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <object class="spacer">
+                      <size>20</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupRopeEdit">
+                        <size>66,20</size>
+                        <label>Info Only</label>
+                      </object>
+                    </object>
+                    <orient>wxHORIZONTAL</orient>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>15,19</size>
+                  <option>1</option>
+                  <border>5</border>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxGridSizer">
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>SWLL</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupRopeSWLL">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Diameter</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupRopeDiameter">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Type</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupRopeType">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Number</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupRopeNumber">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxStaticText">
+                        <label>Length</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxTextCtrl" name="txtAxisSetupRopeLength">
+                        <size>50,20</size>
+                        <value>0</value>
+                        <style>wxTE_RIGHT</style>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupRopeWrite">
+                        <size>50,20</size>
+                        <label>Write</label>
+                      </object>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxButton" name="btnAxisSetupRopeCancel">
+                        <size>50,20</size>
+                        <label>Cancel</label>
+                      </object>
+                    </object>
+                    <cols>2</cols>
+                    <rows>6</rows>
+                    <vgap>2</vgap>
+                    <hgap>23</hgap>
+                  </object>
+                </object>
+                <label>Rope</label>
+                <orient>wxVERTICAL</orient>
+                <object class="spacer">
+                  <size>1,10</size>
+                </object>
+              </object>
+            </object>
+          </object>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <orient>wxHORIZONTAL</orient>
+          <object class="sizeritem">
+            <object class="wxPanel" name="RecoverPanel">
+              <object class="wxStaticBoxSizer">
+                <label>Recover</label>
+                <orient>wxHORIZONTAL</orient>
+                <object class="spacer">
+                  <size>10,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>EStop Cut Position </label>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>5,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxTextCtrl" name="txtEStopCutPosition">
+                    <size>50,20</size>
+                    <value>999,99</value>
+                    <style>wxTE_RIGHT</style>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>12,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>EStop Cut Vel</label>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>5,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxTextCtrl" name="txtEStopCutVel">
+                    <size>50,20</size>
+                    <style>wxTE_RIGHT</style>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>12,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>PosDiff</label>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>5,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxTextCtrl" name="txtEStopPosDiff">
+                    <size>50,20</size>
+                    <style>wxTE_RIGHT</style>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>12,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxStaticText">
+                    <label>EStop Cut Time </label>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>5,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxTextCtrl" name="txtEStopCutTime">
+                    <size>155,20</size>
+                    <value>14-12-2011 13:36:52 123 ms</value>
+                    <style>wxTE_RIGHT</style>
+                  </object>
+                </object>
+                <object class="spacer">
+                  <size>18,10</size>
+                </object>
+                <object class="sizeritem">
+                  <object class="wxButton" name="btnRecover">
+                    <size>70,20</size>
+                    <label>Recover</label>
+                  </object>
+                </object>
+                <object class="spacer"/>
+              </object>
+              <fg>#FFFFFF</fg>
+              <bg>#B71100</bg>
+            </object>
+          </object>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="sizeritem">
+            <object class="wxPanel" name="EStopPanel">
+              <object class="wxStaticBoxSizer">
+                <object class="sizeritem">
+                  <object class="wxBoxSizer">
+                    <orient>wxHORIZONTAL</orient>
+                    <object class="spacer">
+                      <size>70,5</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <orient>wxVERTICAL</orient>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rMaster">
+                                <label>E-Stop; Master</label>
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <orient>wxVERTICAL</orient>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rSlave">
+                                <label>Break, Slave</label>
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                            <orient>wxVERTICAL</orient>
+                            <object class="sizeritem">
+                              <object class="wxRadioButton" name="rNetwork">
+                                <label>Network</label>
+                                <style>wxRB_SINGLE</style>
+                              </object>
+                            </object>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="spacer">
+                      <size>160,5</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="spacer">
+                          <size>10,2</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxToggleButton" name="btnEReset">
+                            <size>80,25</size>
+                            <label>Sync Reset</label>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>10,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxToggleButton" name="btnEStopRestart">
+                            <label>EStop Restart</label>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="spacer">
+                      <size>100,5</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG1COM">
+                            <label>G1 COM</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG1OUT">
+                            <label>G1 OUT</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG1FB">
+                            <label>G1 FB</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="spacer">
+                      <size>25,5</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG2COM">
+                            <label>G2 COM</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG2OUT">
+                            <label>G2 OUT</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG2FB">
+                            <label>G2 FB</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="spacer">
+                      <size>25,5</size>
+                    </object>
+                    <object class="sizeritem">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG3COM">
+                            <label>G3 COM</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG3OUT">
+                            <label>G3 OUT</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                          <object class="wxRadioButton" name="rG3FB">
+                            <label>G3 FB</label>
+                            <style>wxRB_SINGLE</style>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                    <object class="spacer"/>
+                  </object>
+                </object>
+                <label>E-Stop</label>
+                <orient>wxVERTICAL</orient>
+              </object>
+              <fg>#0000FF</fg>
+              <bg>#FAC612</bg>
+            </object>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+      </object>
+    </object>
+    <fg>#FFFFFF</fg>
+    <bg>#C0C0C0</bg>
+  </object>
+  <object class="wxPanel" name="ActNewValue">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxStaticBoxSizer">
+          <label>Positions</label>
+          <orient>wxVERTICAL</orient>
+          <object class="sizeritem">
+            <object class="wxFlexGridSizer">
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <size>40,20</size>
+                  <label>Act Pos</label>
+                </object>
+              </object>
+              <object class="spacer">
+                <size>2,2</size>
+              </object>
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <size>15,20</size>
+                  <label>:=</label>
+                </object>
+              </object>
+              <object class="spacer">
+                <size>2,2</size>
+              </object>
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <size>60,20</size>
+                  <label>New Act Pos</label>
+                </object>
+              </object>
+              <object class="sizeritem">
+                <object class="wxTextCtrl" name="txtActNewValueActPos">
+                  <size>40,20</size>
+                  <value>9999</value>
+                  <style>wxTE_RIGHT</style>
+                </object>
+              </object>
+              <object class="spacer">
+                <size>5,5</size>
+              </object>
+              <object class="sizeritem">
+                <object class="wxStaticText">
+                  <size>15,20</size>
+                  <label>:=</label>
+                </object>
+              </object>
+              <object class="spacer">
+                <size>2,2</size>
+              </object>
+              <object class="sizeritem">
+                <object class="wxTextCtrl" name="txtActNewValueNewPos">
+                  <size>60,20</size>
+                  <style>wxTE_RIGHT</style>
+                </object>
+              </object>
+              <object class="spacer">
+                <size>10,10</size>
+              </object>
+              <cols>5</cols>
+              <rows>3</rows>
+            </object>
+          </object>
+          <object class="sizeritem">
+            <object class="wxBoxSizer">
+              <orient>wxHORIZONTAL</orient>
+              <object class="spacer">
+                <size>20</size>
+              </object>
+              <object class="sizeritem">
+                <object class="wxButton" name="btnActNewValueOK">
+                  <size>40,20</size>
+                  <label>OK</label>
+                </object>
+              </object>
+              <object class="spacer"/>
+              <object class="sizeritem">
+                <object class="wxButton" name="btnActNewValueCancel">
+                  <size>40,20</size>
+                  <label>Cancel</label>
+                </object>
+              </object>
+            </object>
+          </object>
+        </object>
+      </object>
+    </object>
+    <bg>#FFFF00</bg>
+  </object>
+</resource>

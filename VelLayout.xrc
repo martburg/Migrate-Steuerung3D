@@ -1,0 +1,449 @@
+<?xml version="1.0" ?>
+<resource>
+  <object class="wxFrame" name="Mainframe">
+    <object class="wxPanel" name="MainPanel">
+      <object class="wxFlexGridSizer">
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer"/>
+        <object class="spacer"/>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>20,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer"/>
+        <object class="sizeritem">
+          <object class="wxFlexGridSizer">
+            <cols>1</cols>
+            <rows>4</rows>
+            <vgap>4</vgap>
+            <hgap>4</hgap>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <size>70,16</size>
+                <label>Key Points</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxPanel">
+                <object class="wxListCtrl" name="listKeyPointWindow" subclass="CellEdit.listKeyPointWindow">
+                  <size>420,200</size>
+                  <style>wxLC_REPORT</style>
+                </object>
+              </object>
+            </object>
+          </object>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="sizeritem">
+          <object class="wxNotebook" name="Notebook">
+            <object class="notebookpage">
+              <object class="wxPanel" name="PanelOne">
+                <object class="wxFlexGridSizer">
+                  <object class="sizeritem">
+                    <object class="wxPanel" name="panelVelPath">
+                      <size>500,100</size>
+                    </object>
+                    <option>7</option>
+                    <flag>wxGROW|wxFIXED_MINSIZE</flag>
+                    <minsize>500,120</minsize>
+                  </object>
+                  <cols>1</cols>
+                  <rows>2</rows>
+                  <growablecols>0</growablecols>
+                  <growablerows>0</growablerows>
+                  <XRCED>
+                    <events>EVT_SIZE</events>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <size>500,120</size>
+                <fg>#000000</fg>
+                <bg>#FFFFFF</bg>
+                <style>wxFULL_REPAINT_ON_RESIZE</style>
+              </object>
+              <label>Vel / Path</label>
+            </object>
+            <object class="notebookpage">
+              <object class="wxPanel" name="PanelTwo">
+                <object class="wxFlexGridSizer">
+                  <object class="sizeritem">
+                    <object class="wxPanel" name="panelVelTime">
+                      <size>500,120</size>
+                    </object>
+                    <option>7</option>
+                    <flag>wxGROW|wxFIXED_MINSIZE</flag>
+                    <minsize>500,120</minsize>
+                  </object>
+                  <cols>1</cols>
+                  <rows>2</rows>
+                  <growablecols>0</growablecols>
+                  <growablerows>0</growablerows>
+                  <XRCED>
+                    <events>EVT_SIZE</events>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <size>500,120</size>
+                <fg>#000000</fg>
+                <bg>#FFFFFF</bg>
+                <style>wxFULL_REPAINT_ON_RESIZE</style>
+              </object>
+              <label>Vel / Time</label>
+            </object>
+          </object>
+          <flag>wxGROW|wxFIXED_MINSIZE</flag>
+          <minsize>500,200</minsize>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="sizeritem">
+          <object class="wxFlexGridSizer">
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Path</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxPanel">
+                <object class="wxBoxSizer">
+                  <orient>wxHORIZONTAL</orient>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtPath">
+                      <size>62,20</size>
+                      <value>Description</value>
+                      <style>wxTE_PROCESS_ENTER|wxTE_RIGHT</style>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText">
+                      <label>/</label>
+                      <font>
+                        <size>12</size>
+                        <style>normal</style>
+                        <weight>bold</weight>
+                        <underlined>0</underlined>
+                        <family>swiss</family>
+                        <face>Tahoma</face>
+                        <encoding>WINDOWS-1252</encoding>
+                      </font>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtSpeedDesc">
+                      <size>62,20</size>
+                      <value>Default</value>
+                    </object>
+                  </object>
+                </object>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Start Position</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtStartPosition">
+                <size>135,20</size>
+                <value>999.99 / 999.99 / 999.99</value>
+                <style>wxTE_RIGHT</style>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>End Position</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtEndPosition">
+                <size>135,20</size>
+                <value>999.99 / 999.99 / 999.99</value>
+                <style>wxTE_RIGHT</style>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Length</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtLength">
+                <size>62,20</size>
+                <value>999.99</value>
+                <style>wxTE_RIGHT</style>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label> * meanVel  / mean Vel</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxPanel">
+                <object class="wxBoxSizer">
+                  <orient>wxHORIZONTAL</orient>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtVel">
+                      <size>62,20</size>
+                      <value>99.99</value>
+                      <style>wxTE_PROCESS_ENTER|wxTE_RIGHT</style>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText">
+                      <label>/</label>
+                      <font>
+                        <size>12</size>
+                        <style>normal</style>
+                        <weight>bold</weight>
+                        <underlined>0</underlined>
+                        <family>swiss</family>
+                        <face>Tahoma</face>
+                        <encoding>WINDOWS-1252</encoding>
+                      </font>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtMaxVel">
+                      <size>62,20</size>
+                      <value>99.99</value>
+                    </object>
+                  </object>
+                </object>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>* maxAcc  / max Acc</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxPanel">
+                <object class="wxBoxSizer">
+                  <orient>wxHORIZONTAL</orient>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtAcc">
+                      <size>62,20</size>
+                      <value>99.99</value>
+                      <style>wxTE_PROCESS_ENTER|wxTE_RIGHT</style>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText">
+                      <label>/</label>
+                      <font>
+                        <size>12</size>
+                        <style>normal</style>
+                        <weight>bold</weight>
+                        <underlined>0</underlined>
+                        <family>swiss</family>
+                        <face>Tahoma</face>
+                        <encoding>WINDOWS-1252</encoding>
+                      </font>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtMaxAcc">
+                      <size>62,20</size>
+                      <value>99.99</value>
+                    </object>
+                  </object>
+                </object>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Time / min Time</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxPanel">
+                <object class="wxBoxSizer">
+                  <orient>wxHORIZONTAL</orient>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtTime">
+                      <size>62,20</size>
+                      <value>00:00:00</value>
+                      <style>wxTE_PROCESS_ENTER|wxTE_RIGHT</style>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText">
+                      <label>/</label>
+                      <font>
+                        <size>12</size>
+                        <style>normal</style>
+                        <weight>bold</weight>
+                        <underlined>0</underlined>
+                        <family>swiss</family>
+                        <face>Tahoma</face>
+                        <encoding>WINDOWS-1252</encoding>
+                      </font>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtMinTime">
+                      <size>62,20</size>
+                      <value>00:00:00</value>
+                    </object>
+                  </object>
+                </object>
+              </object>
+            </object>
+            <cols>2</cols>
+            <rows>4</rows>
+            <vgap>6</vgap>
+            <hgap>4</hgap>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Smoothing / On-Off</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxPanel">
+                <object class="wxBoxSizer">
+                  <orient>wxHORIZONTAL</orient>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtSmoothing">
+                      <size>62,20</size>
+                      <value>999</value>
+                      <style>wxTE_PROCESS_ENTER|wxTE_RIGHT</style>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText">
+                      <label>/</label>
+                      <font>
+                        <size>12</size>
+                        <style>normal</style>
+                        <weight>bold</weight>
+                        <underlined>0</underlined>
+                        <family>swiss</family>
+                        <face>Tahoma</face>
+                        <encoding>WINDOWS-1252</encoding>
+                      </font>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtSmoothingOn">
+                      <size>62,20</size>
+                      <value>1</value>
+                      <style>wxTE_PROCESS_ENTER</style>
+                    </object>
+                  </object>
+                </object>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Show Diags</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxPanel">
+                <object class="wxBoxSizer">
+                  <orient>wxHORIZONTAL</orient>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtReserved">
+                      <size>62,20</size>
+                      <value>1</value>
+                      <style>wxTE_PROCESS_ENTER</style>
+                    </object>
+                  </object>
+                </object>
+              </object>
+            </object>
+          </object>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <cols>7</cols>
+        <rows>4</rows>
+        <growablecols>3</growablecols>
+        <growablerows>1</growablerows>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer"/>
+        <object class="spacer"/>
+        <object class="sizeritem">
+          <object class="wxBoxSizer">
+            <orient>wxHORIZONTAL</orient>
+            <object class="spacer"/>
+            <object class="sizeritem">
+              <object class="wxButton" name="btnMakeCopy">
+                <label>Save New</label>
+              </object>
+            </object>
+            <object class="spacer">
+              <size>10,10</size>
+            </object>
+            <object class="sizeritem">
+              <object class="wxButton" name="btnReplace">
+                <label>Replace</label>
+              </object>
+            </object>
+            <object class="spacer">
+              <size>10,10</size>
+            </object>
+            <object class="sizeritem">
+              <object class="wxButton" name="btnQuit">
+                <label>Quit</label>
+              </object>
+            </object>
+          </object>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+      </object>
+    </object>
+    <size>1300,280</size>
+    <centered>1</centered>
+    <style>wxCAPTION|wxRESIZE_BORDER|wxRESIZE_BOX|wxFRAME_NO_TASKBAR|wxFRAME_FLOAT_ON_PARENT</style>
+  </object>
+</resource>

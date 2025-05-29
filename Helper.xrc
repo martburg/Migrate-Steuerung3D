@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<resource>
+  <object class="wxFrame">
+    <object class="wxStaticBoxSizer">
+      <label>Point</label>
+      <orient>wxVERTICAL</orient>
+      <orient>wxVERTICAL</orient>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <orient>wxHORIZONTAL</orient>
+          <object class="sizeritem">
+            <object class="wxStaticText">
+              <size>72,20</size>
+              <label>X - Koordinate </label>
+            </object>
+          </object>
+          <object class="sizeritem">
+            <object class="wxTextCtrl" name="txtYellowX">
+              <size>55,20</size>
+            </object>
+          </object>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <orient>wxHORIZONTAL</orient>
+          <object class="sizeritem">
+            <object class="wxStaticText">
+              <size>72,20</size>
+              <label>Y - Koordinate </label>
+            </object>
+          </object>
+          <object class="sizeritem">
+            <object class="wxTextCtrl" name="txtYellowY">
+              <size>55,20</size>
+            </object>
+          </object>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <orient>wxHORIZONTAL</orient>
+          <object class="sizeritem">
+            <object class="wxStaticText">
+              <size>72,20</size>
+              <label>Z - Koordinate  </label>
+            </object>
+          </object>
+          <object class="sizeritem">
+            <object class="wxTextCtrl" name="txtYellowZ">
+              <size>55,20</size>
+            </object>
+          </object>
+        </object>
+      </object>
+    </object>
+  </object>
+</resource>

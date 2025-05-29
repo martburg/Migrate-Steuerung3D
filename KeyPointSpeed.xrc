@@ -1,0 +1,316 @@
+<?xml version="1.0" ?>
+<resource>
+  <object class="wxFrame" name="Mainframe">
+    <object class="wxPanel" name="MainPanel">
+      <object class="wxFlexGridSizer">
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer"/>
+        <object class="spacer"/>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>20,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="sizeritem">
+          <object class="wxGridSizer">
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Path:</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtPath">
+                <value>Path from A to B</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Length</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtLength">
+                <size>50,20</size>
+                <value>99.99</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Start Position</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtStartPosition">
+                <size>50,20</size>
+                <value>0.0</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>End Position</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtEndPosition">
+                <size>50,20</size>
+                <value>999.99</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>max Vel Limit</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtmaxVel">
+                <size>50,20</size>
+                <value>20.0</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>max Acc Limit</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtmaxAcc">
+                <size>50,20</size>
+                <value>10.0</value>
+              </object>
+            </object>
+            <cols>2</cols>
+            <rows>4</rows>
+            <vgap>4</vgap>
+            <hgap>4</hgap>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>maxJerk Limit</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtmaxJerk">
+                <size>50,20</size>
+                <value>10.0</value>
+              </object>
+            </object>
+          </object>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="sizeritem">
+          <object class="wxNotebook" name="Notebook">
+            <object class="notebookpage">
+              <object class="wxPanel" name="PanelOne">
+                <object class="wxFlexGridSizer">
+                  <object class="sizeritem">
+                    <object class="wxPanel" name="panelArcTime">
+                      <size>500,100</size>
+                    </object>
+                    <option>7</option>
+                    <flag>wxGROW|wxFIXED_MINSIZE</flag>
+                    <minsize>500,120</minsize>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxGrid" name="gridArcTimeKeyPoints"/>
+                          <flag>wxGROW|wxFIXED_MINSIZE</flag>
+                          <minsize>500,70</minsize>
+                        </object>
+                      </object>
+                      <pos>0,300</pos>
+                    </object>
+                    <option>1</option>
+                    <flag>wxGROW</flag>
+                  </object>
+                  <cols>1</cols>
+                  <rows>2</rows>
+                  <growablecols>0</growablecols>
+                  <growablerows>0</growablerows>
+                  <XRCED>
+                    <events>EVT_SIZE</events>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <size>500,120</size>
+                <fg>#000000</fg>
+                <bg>#FFFFFF</bg>
+                <style>wxFULL_REPAINT_ON_RESIZE</style>
+              </object>
+              <label>Path / Time</label>
+            </object>
+            <object class="notebookpage">
+              <object class="wxPanel" name="PanelTwo">
+                <object class="wxFlexGridSizer">
+                  <object class="sizeritem">
+                    <object class="wxPanel" name="panelVelTime">
+                      <size>500,120</size>
+                    </object>
+                    <option>7</option>
+                    <flag>wxGROW|wxFIXED_MINSIZE</flag>
+                    <minsize>500,120</minsize>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                          <object class="wxGrid" name="gridVelTimeKeyPoints"/>
+                          <flag>wxGROW|wxFIXED_MINSIZE</flag>
+                          <minsize>500,70</minsize>
+                        </object>
+                      </object>
+                      <pos>0,300</pos>
+                    </object>
+                    <option>1</option>
+                    <flag>wxGROW</flag>
+                  </object>
+                  <cols>1</cols>
+                  <rows>2</rows>
+                  <growablecols>0</growablecols>
+                  <growablerows>0</growablerows>
+                  <XRCED>
+                    <events>EVT_SIZE</events>
+                    <assign_var>1</assign_var>
+                  </XRCED>
+                </object>
+                <size>500,120</size>
+                <fg>#000000</fg>
+                <bg>#FFFFFF</bg>
+                <style>wxFULL_REPAINT_ON_RESIZE</style>
+              </object>
+              <label>Time / Path</label>
+            </object>
+          </object>
+          <flag>wxGROW|wxFIXED_MINSIZE</flag>
+          <minsize>500,200</minsize>
+        </object>
+        <object class="spacer"/>
+        <object class="sizeritem">
+          <object class="wxGridSizer">
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Global Duration</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtGlobDuration">
+                <size>71,20</size>
+                <value>25:59:59:25</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Start Time</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtStartTime">
+                <size>71,20</size>
+                <value>00:00:00:00</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>End Time</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtEndTime">
+                <size>71,20</size>
+                <value>25:59:59:25</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Segment Duration</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtSegDuration">
+                <size>71,20</size>
+                <value>25:59:59:25</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Segment Start</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtSegmentStart">
+                <size>71,20</size>
+                <value>00:00:00:00</value>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxStaticText">
+                <label>Segment End</label>
+              </object>
+            </object>
+            <object class="sizeritem">
+              <object class="wxTextCtrl" name="txtSegmentEnd">
+                <size>71,20</size>
+                <value>25:59:59:25</value>
+              </object>
+            </object>
+            <cols>2</cols>
+            <rows>4</rows>
+            <vgap>4</vgap>
+            <hgap>4</hgap>
+          </object>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="spacer">
+          <size>10,10</size>
+        </object>
+        <object class="sizeritem">
+          <object class="wxBoxSizer">
+            <orient>wxHORIZONTAL</orient>
+            <object class="spacer">
+              <size>180,10</size>
+            </object>
+            <object class="sizeritem">
+              <object class="wxButton">
+                <label>Calculate</label>
+              </object>
+            </object>
+            <object class="spacer">
+              <size>10,10</size>
+            </object>
+            <object class="sizeritem">
+              <object class="wxButton">
+                <label>Load</label>
+              </object>
+            </object>
+            <object class="spacer"/>
+            <object class="spacer"/>
+          </object>
+        </object>
+        <cols>6</cols>
+        <rows>3</rows>
+        <growablecols>3</growablecols>
+        <growablerows>1</growablerows>
+      </object>
+    </object>
+    <size>900,300</size>
+    <centered>1</centered>
+  </object>
+</resource>
