@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StatusForm</class>
+ <widget class="QWidget" name="StatusForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>795</width>
+    <height>150</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Status Panel</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <item>
+    <widget class="QGroupBox" name="engineGroup">
+     <property name="title">
+      <string>Engine</string>
+     </property>
+     <layout class="QHBoxLayout" name="engineLayout">
+      <item>
+       <widget class="QComboBox" name="cmbAxisName">
+        <property name="currentText">
+         <string>ANTON</string>
+        </property>
+        <property name="placeholderText">
+         <string notr="true"/>
+        </property>
+        <item>
+         <property name="text">
+          <string>ANTON</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BURT</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>CECIL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>DEBBY</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SIMUL</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txtAxisPos">
+        <property name="text">
+         <string>999.99 m</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txtAxisVel">
+        <property name="text">
+         <string>99.99 m/s</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txtAxisAmp">
+        <property name="text">
+         <string>150 A</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="sldAxisVel">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txtAxisError">
+        <property name="text">
+         <string>F 999/99</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAxisReset">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txtAxisTemp">
+        <property name="text">
+         <string>99°C</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txtTimeTick">
+        <property name="text">
+         <string>99</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -722,6 +722,7 @@ class Achse():
                 #print str(KontaktData) + '  UDP Close'
             except:
                 pass
+
     def initProperties(self):
         self.LTold             = "0"
         self.Modus             = "Modus"
@@ -823,7 +824,6 @@ class Achse():
         self.EsReady         = False #
         self.EsOneMore       = True
         self.GUINotHalt      = 1
-        
 
     def comunicateServer(self):
         if self.Host <> "127.0.0.1":
@@ -887,6 +887,7 @@ class Achse():
             self.InitAchse = 0
 
         return
+
     def Simulate(self):
         
         fa="%3.2f"
@@ -999,7 +1000,6 @@ class Achse():
         self.EStopCutPos                  = 0
         self.EStopCutVel                  = 0
         self.EsEStop2                     = False
-        
 
     def packSendstringToSPS(self):
         try:
@@ -1104,7 +1104,6 @@ class Achse():
             pass
         self.DecodeEStopStatus()
         
-       
     def DecodeEStopStatus(self):
 
         if (self.EStopStatus & 65536): # Bit 16
@@ -1249,6 +1248,7 @@ class Achse():
         
     def Enable(self):
         self.Enable = 1
+
     def Disable(self):
         self.Enable = 0
 
