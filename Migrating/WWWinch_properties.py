@@ -1,12 +1,13 @@
 from dataclasses import dataclass, field
 
-class WWWinchProperties:
+class Properties:
     """
     This class holds the properties of a wiredworks Winch.
     It is used to store the properties of the wiredworks Winch in a structured way.
     """
     def __init__(self):
         self.Axis = AxisProp()
+
 @dataclass
 class GuidActProp:
     GuidePosIstUI    : float = 0.0               # from 30
@@ -39,6 +40,7 @@ class AxisActProp:
     Intent           : str     = "False"
     Enable           : bool    = False   
     PosIst           : float   = 0.0              # from 4
+    LagError         : float   = 0.0              # 
     SpeedIstUI       : float   = 0.0              # from 5
     MasterMomentUI   : float   = 0.0              # from 6
     MotAuslastUI     : float   = 0.0              # legacy
@@ -53,6 +55,7 @@ class AxisActProp:
     EStopCutTime     : float   = 0.0              # from 39
     EStopCutPos      : float   = 0.0              # from 40
     EStopCutVel      : float   = 0.0              # from 41
+    EStopPosDiff     : float   = 0.0              # 
     EStopReset       : bool    = False            # from UI
     InitAchse        : int     = 1                # from UI       
 
@@ -60,14 +63,17 @@ class AxisActProp:
 class AxisSetProp:
     Name             : str     = "AxisName"       # from 8
     GearToUI         : float   = 1.0              # from 9
-    PosHardMax       : float   = 300.0            # from 10
-    PosUserMax       : float   = 300.0            # from 11
-    PosUserMin       : float   = -300.0           # from 12
-    PosHardMin       : float   = -300.0           # from 13
+    HardMax          : float   = 300.0            # from 10
+    UserMax          : float   = 300.0            # from 11
+    PosOffset         : float   = 0.0              # from 37
+    UserMin          : float   = -300.0           # from 12
+    HardMin          : float   = -300.0           # from 13
     PosWin           : float   = 0.5              # from 42
-    SpeedMax         : float   = 5.0              # from 14
+    VelMaxMot        : float   = 5.0              # from 33
+    VelMax           : float   = 5.0              # from 14
     AccMax           : float   = 10.0             # from 15 
     DccMax           : float   = 10.0             # from 16
+    AccMove          : float   = 10.0             # from 38
     MaxAmp           : float   = 150              # from 17
     VelWin           : float   = 0.5              # from 43
     FilterP          : float   = 1.0              # from 18
@@ -99,18 +105,20 @@ class EStopProp:
     EsSlave          : bool    = False
     EsNetwork        : bool    = False
     EsMaster         : bool    = False
+    EsGuider         : bool    = False
     EsResetAble      : bool    = False
     EsEStop1         : bool    = False
-    EsEstop2         : bool    = False
+    EsEStop2         : bool    = False
     EsSteuerwort     : bool    = False
     Es05kWOK         : bool    = False
-    EsB1OK           : bool    = False
-    EsB2OK           : bool    = False
+    EsBRK1OK         : bool    = False
+    EsBRK2OK         : bool    = False
     EsDCSOK          : bool    = False
+    EsENC            : bool    = False
     EsSPSOK          : bool    = False
     EsBRK2KB         : bool    = False
     EsFTBOK          : bool    = False
-    EsPosWin           : bool    = False
+    EsPosWin         : bool    = False
     EsVelWin         : bool    = False
     EsEndlage        : bool    = False
     EsSchluessel1    : bool    = False

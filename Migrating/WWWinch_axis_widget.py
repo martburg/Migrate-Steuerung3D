@@ -1,0 +1,162 @@
+from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtCore import QTimer
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QFile
+from PySide6.QtWidgets import QLineEdit, QLabel, QRadioButton, QSlider, QCheckBox
+
+
+import os,re
+
+
+class Widget(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.widget_classes = {
+            "QLineEdit": QLineEdit,
+            "QLabel": QLabel,
+            "QRadioButton": QRadioButton,
+            "QSlider": QSlider,
+            "QCheckBox": QCheckBox,
+        }
+
+        self._load_ui()
+
+        self._bindings = {
+                "txtAccMax":          ("QLineEdit", "ActProp.AccMax", "{:.2f}"),
+                "txtAccMove":         ("QLineEdit", "SetProp.AccMax", "{:.2f}"),
+                "txtPosIst":          ("QLineEdit", "ActProp.PosIst", "{:.2f}"),
+                "txtActCurUI":        ("QLineEdit", "ActProp.ActCurUI", "{:.2f}"),
+                "txtStatus":          ("QLineEdit", "ActProp.Status", None),
+                "txtPosIst":         ("QLineEdit", "ActProp.PosIst", "{:.2f}"),
+                "txtCabTemperature":  ("QLineEdit", "ActProp.CabTemperature", "{:.2f}"),
+                "txtSpeedIstUI":      ("QLineEdit", "ActProp.SpeedIstUI", "{:.2f}"),
+                "txtEStopCutPos":     ("QLineEdit", "ActProp.EStopCutPos", "{:.2f}"),
+                "txtEStopPosDiff":    ("QLineEdit", "ActProp.EStopPosDiff", "{:.2f}"),
+                "txtEStopCutTime":    ("QLineEdit", "ActProp.EStopCutTime", "{:.2f}"),
+                "txtEStopCutVel":     ("QLineEdit", "ActProp.EStopCutVel", "{:.2f}"),
+                "txtDccMax":          ("QLineEdit", "ActProp.DccMax", "{:.2f}"),
+                "txtFilterD":         ("QLineEdit", "SetProp.FilterD", "{:.2f}"),
+                "txtRopeDiameter":    ("QLineEdit", "SetProp.RopeDiameter", "{:.2f}"),
+                "txtGuidePitch":      ("QLineEdit", "Guide.SetProp.GuidePitch", "{:.2f}"),
+                "txtGuidePosIstUI":   ("QLineEdit", "Guide.ActProp.GuidePosIstUI", "{:.2f}"),
+                "txtGuidePosMaxMax":  ("QLineEdit", "Guide.SetProp.GuidePosMaxMax", "{:.2f}"),
+                "txtGuidePosMax":     ("QLineEdit", "Guide.SetProp.GuidePosMax", "{:.2f}"),
+                "txtGuidePosMin":     ("QLineEdit", "Guide.SetProp.GuidePosMin", "{:.2f}"),
+                "txtGuideIstSpeedUI": ("QLineEdit", "Guide.ActProp.GuideIstSpeedUI", "{:.2f}"),
+                "txtGuideStatus":     ("QLineEdit", "Guide.ActProp.GuideStatus", None),
+                "txtHardMax":         ("QLineEdit", "SetProp.HardMax", "{:.2f}"),
+                "txtHardMin":         ("QLineEdit", "SetProp.HardMin", "{:.2f}"),
+                "txtFilterIL":        ("QLineEdit", "SetProp.FilterIL", "{:.2f}"),
+                "txtRopeLength":      ("QLineEdit", "SetProp.RopeLength", "{:.2f}"),
+                "txtMaxAmp":          ("QLineEdit", "SetProp.MaxAmp", "{:.2f}"),
+                "txtRopeNumber":      ("QLineEdit", "SetProp.RopeNumber", None),
+                "txtPosWin":          ("QLineEdit", "SetProp.PosWin", "{:.2f}"),
+                "txtFilterP":         ("QLineEdit", "SetProp.FilterP", "{:.2f}"),
+                "txtRampform":        ("QLineEdit", "SetProp.Rampform", None),
+                "txtRopeSWLL":            ("QLineEdit", "SetProp.RopeSWLL", "{:.2f}"),
+                #"txtSelected1":       ("QLineEdit", "ActProp.ControlingPIDTx", None),
+                #txtSelected2":        ("QLineEdit", "ActProp.ControlingPIDRx", None),
+                "txtTimeTick":        ("QLineEdit", "ActProp.LTOld", "{:.0f}"),
+                "txtRopeType":        ("QLineEdit", "SetProp.RopeType", None),
+                "txtUserMax":         ("QLineEdit", "SetProp.UserMax", "{:.2f}"),
+                "txtUserMin":         ("QLineEdit", "SetProp.UserMin", "{:.2f}"),
+                "txtVelMax":          ("QLineEdit", "SetProp.VelMax", "{:.2f}"),
+                "txtVelWin":          ("QLineEdit", "SetProp.VelWin", "{:.2f}"),
+                "txtFilterI":         ("QLineEdit", "SetProp.FilterI", "{:.2f}"),                
+                # RadioButtons 
+                #"cbFBT" :         ("QCheckBox", "EStop.EsFBT", None),
+                #"cbBrake1":       ("QCheckBox", "EStop.EsBrake1", None),
+                #"cbBrake2":       ("QCheckBox", "EStop.EsBrake2", None), 
+                "cbBrake1":       ("QCheckBox", "EStop.EsBRK1OK", None),
+                "cbBrake2":       ("QCheckBox", "EStop.EsBRK2OK", None),
+                "cbEsEStop1":     ("QCheckBox", "EStop.EsEStop1", None),
+                "cbEsEStop2":     ("QCheckBox", "EStop.EsEStop2", None),
+                "cbEs05kW":       ("QCheckBox", "EStop.Es05kWOK", None),
+                "cbEs30kW":       ("QCheckBox", "EStop.Es30kWOK", None),
+                "cbEsBRK1OK":     ("QCheckBox", "EStop.EsBRK1OK", None),
+                "cbEsBRK2OK":     ("QCheckBox", "EStop.EsBRK2OK", None),         
+                "cbEsBRK2KB":     ("QCheckBox", "EStop.EsBRK2KB", None),
+                "cbEsEndlage":    ("QCheckBox", "EStop.EsEndlage", None),
+                "cbEsG1COM":      ("QCheckBox", "EStop.EsG1COM", None),
+                "cbEsG1FB":       ("QCheckBox", "EStop.EsG1FB", None),
+                "cbEsG1OUT":      ("QCheckBox", "EStop.EsG1OUT", None),
+                "cbEsG2COM":      ("QCheckBox", "EStop.EsG2COM", None),
+                "cbEsG2FB":       ("QCheckBox", "EStop.EsG2FB", None),
+                "cbEsG2OUT":      ("QCheckBox", "EStop.EsG2OUT", None),
+                "cbEsG3COM":      ("QCheckBox", "EStop.EsG3COM", None),
+                "cbEsG3FB":       ("QCheckBox", "EStop.EsG3FB", None),
+                "cbEsG3OUT":      ("QCheckBox", "EStop.EsG3OUT", None),
+                "cbEsMaster":     ("QCheckBox", "EStop.EsMaster", None),
+                "cbEsGuider":     ("QCheckBox", "EStop.EsGuider", None),
+                "cbEsNetwork":    ("QCheckBox", "EStop.EsNetwork", None),
+                "cbEsPosWin":     ("QCheckBox", "EStop.EsPosWin", None),
+                "cbEsVelWin":     ("QCheckBox", "EStop.EsVelWin", None),
+                "cbEsEStop1":     ("QCheckBox", "EStop.EsEStop1", None),
+                "cbEsEStop2":     ("QCheckBox", "EStop.EsEStop2", None),
+                "cbSPS":          ("QCheckBox", "EStop.EsSPSOK", None),
+                "cbEsRED":        ("QCheckBox", "EStop.EsReady", None),
+                "cbEsENC":        ("QCheckBox", "EStop.EsENC", None),
+                "cbGuideOnline":  ("QCheckBox", "Guide.ActProp.GuideStatus", None),
+                "cbGuideReady":   ("QCheckBox", "Guide.ActProp.GuideStatus", None),
+                "cbOnline":       ("QCheckBox", "ActProp.Enable", None),
+                "cbReady":        ("QCheckBox", "EStop.EsReady", None),
+                # Sliders 
+                "sldAxisVel":     ("QSlider", "ActProp.SpeedIstUI", None),
+                "sldGuideSpeed":  ("QSlider", "Guide.ActProp.GuideIstSpeedUI", None),
+            }
+
+    def _load_ui(self):
+        loader = QUiLoader()
+        ui_path = os.path.join(os.path.dirname(__file__), "Achse.ui")
+        ui_file = QFile(ui_path)
+
+        if not ui_file.exists():
+            raise FileNotFoundError(f"UI file not found: {ui_path}")
+        if not ui_file.open(QFile.ReadOnly):
+            raise IOError(f"Cannot open UI file: {ui_path}")
+
+        self.ui = loader.load(ui_file, self)
+        ui_file.close()
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.ui)
+
+        self.setFixedSize(self.ui.size())
+
+    def get_properties(self):
+        """Collects all properties from the UI widgets and returns them as a dictionary."""
+        props = {}
+        for name, (widget_type, path, fmt) in self._bindings.items():
+            widget = getattr(self.ui, name, None)
+            if not widget:
+                continue
+
+            if widget_type in ("QLineEdit", "QLabel"):
+                value = widget.text()
+                if fmt:
+                    value_clean = re.sub(r"[^\d.\-]+", "", value)
+                    try:
+                        value = fmt.format(float(value_clean)) if value_clean else None
+                    except ValueError:
+                        value = None
+                    
+
+            elif widget_type == "QRadioButton":
+                value = widget.isChecked()
+            elif widget_type == "QSlider":
+                value = widget.value()
+            elif widget_type == "QCheckBox":
+                value = widget.isChecked()
+            else:
+                continue
+
+            # Resolve the path to the property
+            parts = path.split(".")
+            current = props
+            for part in parts[:-1]:
+                current = current.setdefault(part, {})
+            current[parts[-1]] = value
+
+        return props
+

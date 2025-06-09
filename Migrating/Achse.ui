@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>858</width>
-    <height>439</height>
+    <width>856</width>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -92,7 +92,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="txtAxisPos">
+       <widget class="QLineEdit" name="txtPosIst">
         <property name="maximumSize">
          <size>
           <width>64</width>
@@ -105,7 +105,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="txtAxisVel">
+       <widget class="QLineEdit" name="txtSpeedIstUI">
         <property name="maximumSize">
          <size>
           <width>64</width>
@@ -118,7 +118,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="txtAxisAmp">
+       <widget class="QLineEdit" name="txtActCurUI">
         <property name="maximumSize">
          <size>
           <width>64</width>
@@ -138,7 +138,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="txtAxisError">
+       <widget class="QLineEdit" name="txtStatus">
         <property name="maximumSize">
          <size>
           <width>120</width>
@@ -158,7 +158,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="leAxisTemp">
+       <widget class="QLineEdit" name="txtCabTemperature">
         <property name="maximumSize">
          <size>
           <width>40</width>
@@ -171,7 +171,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="leTimeTick">
+       <widget class="QLineEdit" name="txtTimeTick">
         <property name="maximumSize">
          <size>
           <width>30</width>
@@ -228,7 +228,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_4">
+       <widget class="QLineEdit" name="txtSelected1">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -260,7 +260,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_8">
+       <widget class="QCheckBox" name="cbFBT">
         <property name="text">
          <string>FBT</string>
         </property>
@@ -280,7 +280,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_7">
+       <widget class="QCheckBox" name="cbReady">
         <property name="text">
          <string>Ready</string>
         </property>
@@ -300,7 +300,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_6">
+       <widget class="QCheckBox" name="cbOnline">
         <property name="text">
          <string>Online</string>
         </property>
@@ -320,7 +320,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_10">
+       <widget class="QCheckBox" name="cbBrake1">
         <property name="text">
          <string>Brake 1</string>
         </property>
@@ -340,7 +340,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_9">
+       <widget class="QCheckBox" name="cbBrake2">
         <property name="text">
          <string>Brake 2</string>
         </property>
@@ -360,7 +360,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_3">
+       <widget class="QLineEdit" name="txtSelected2">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -472,7 +472,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="btnPosEdit">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -590,7 +590,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leHardMax">
+             <widget class="QLineEdit" name="txtHardMax">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -672,7 +672,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leUserMax">
+             <widget class="QLineEdit" name="txtUserMax">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -730,7 +730,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Act Pos</string>
+               <string>Offset</string>
               </property>
              </widget>
             </item>
@@ -748,7 +748,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leActPos">
+             <widget class="QLineEdit" name="txtPosOffset">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -824,7 +824,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leUserMin">
+             <widget class="QLineEdit" name="txtUserMin">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -900,7 +900,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leHardMin">
+             <widget class="QLineEdit" name="txtHardMin">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -976,7 +976,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="lePosWin">
+             <widget class="QLineEdit" name="txtPosWin">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1020,7 +1020,7 @@
              <number>5</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QPushButton" name="btnPosWrite">
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -1046,7 +1046,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_6">
+             <widget class="QPushButton" name="btnPosCancel">
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -1117,7 +1117,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton_2">
+             <widget class="QPushButton" name="btnVelEdit">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -1216,7 +1216,10 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leVelMaxMot">
+             <widget class="QLineEdit" name="txtVelMaxMot">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1292,7 +1295,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leVelMax">
+             <widget class="QLineEdit" name="txtVelMax">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1368,7 +1371,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leAccMax">
+             <widget class="QLineEdit" name="txtAccMax">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1444,7 +1447,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leDccMax">
+             <widget class="QLineEdit" name="txtDccMax">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1520,7 +1523,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leAccMove">
+             <widget class="QLineEdit" name="txtAccMove">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1596,7 +1599,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leMaxAmp">
+             <widget class="QLineEdit" name="txtMaxAmp">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1672,7 +1675,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leVelWin">
+             <widget class="QLineEdit" name="txtVelWin">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1716,7 +1719,7 @@
              <number>5</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton_7">
+             <widget class="QPushButton" name="btnVelWrite">
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -1742,7 +1745,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_8">
+             <widget class="QPushButton" name="btnVelCancel">
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -1807,7 +1810,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="lineEdit_31">
+             <widget class="QLineEdit" name="txtGuidePosIstUI">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1820,7 +1823,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_16">
+             <widget class="QPushButton" name="btnGuideEngaged">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1833,7 +1836,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_32">
+             <widget class="QLineEdit" name="txtGuideIstSpeedUI">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1874,7 +1877,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="lineEdit_33">
+             <widget class="QLineEdit" name="txtGuideStatus">
               <property name="maximumSize">
                <size>
                 <width>80</width>
@@ -1954,7 +1957,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_31">
+             <widget class="QCheckBox" name="cbGuideReady">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1967,7 +1970,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_32">
+             <widget class="QCheckBox" name="cbGuideOnline">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -2021,7 +2024,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QSlider" name="horizontalSlider">
+             <widget class="QSlider" name="sldGuideSpeed">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -2097,7 +2100,7 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_17">
+                <widget class="QPushButton" name="btnGuideEdit">
                  <property name="maximumSize">
                   <size>
                    <width>64</width>
@@ -2167,7 +2170,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_35">
+                <widget class="QLineEdit" name="txtGuidePitch">
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
@@ -2186,7 +2189,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_18">
+                <widget class="QPushButton" name="btnGuideWrite">
                  <property name="maximumSize">
                   <size>
                    <width>64</width>
@@ -2243,7 +2246,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_38">
+                <widget class="QLineEdit" name="txtGuidePosMax">
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
@@ -2262,7 +2265,10 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_36">
+                <widget class="QLineEdit" name="txtGuidePosMaxMax">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="maximumSize">
                   <size>
                    <width>64</width>
@@ -2312,7 +2318,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_37">
+                <widget class="QLineEdit" name="txtGuidePosMin">
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
@@ -2331,7 +2337,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_19">
+                <widget class="QPushButton" name="btnGuideCancel">
                  <property name="maximumSize">
                   <size>
                    <width>64</width>
@@ -2405,7 +2411,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton_3">
+             <widget class="QPushButton" name="btnFilterEdit">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -2478,7 +2484,10 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leLagError">
+             <widget class="QLineEdit" name="txtLagError">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2554,7 +2563,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leProp">
+             <widget class="QLineEdit" name="txtFilterP">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2630,7 +2639,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leIntegral">
+             <widget class="QLineEdit" name="txtFilterI">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2706,7 +2715,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leDerivate">
+             <widget class="QLineEdit" name="txtFilterD">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2782,7 +2791,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leIntLim">
+             <widget class="QLineEdit" name="txtFilterIL">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2858,7 +2867,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leRampform">
+             <widget class="QLineEdit" name="txtRampform">
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2941,7 +2950,7 @@
              <number>5</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton_9">
+             <widget class="QPushButton" name="btnFilterWrite">
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -2967,7 +2976,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_10">
+             <widget class="QPushButton" name="btnFilterCancel">
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -3041,7 +3050,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QPushButton" name="btnRopeEdit">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -3117,7 +3126,10 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leSWLL">
+             <widget class="QLineEdit" name="txtRopeSWLL">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -3193,7 +3205,10 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leDiameter">
+             <widget class="QLineEdit" name="txtRopeDiameter">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -3269,7 +3284,10 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leType">
+             <widget class="QLineEdit" name="txtRopeType">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -3345,7 +3363,10 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leNumber">
+             <widget class="QLineEdit" name="txtRopeNumber">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -3421,7 +3442,10 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLineEdit" name="leLength">
+             <widget class="QLineEdit" name="txtRopeLength">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -3517,7 +3541,7 @@
              <number>5</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton_11">
+             <widget class="QPushButton" name="btnRopeWrite">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -3549,7 +3573,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_12">
+             <widget class="QPushButton" name="btnRopeCancel">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -3579,8 +3603,7 @@
    <item>
     <widget class="QGroupBox" name="gbRecover">
      <property name="styleSheet">
-      <string notr="true">
-</string>
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>Recover</string>
@@ -3622,7 +3645,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="txtEStopCutPos">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -3654,7 +3677,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_28">
+       <widget class="QLineEdit" name="txtEStopCutVel">
         <property name="minimumSize">
          <size>
           <width>64</width>
@@ -3699,7 +3722,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_29">
+       <widget class="QLineEdit" name="txtEStopCutTime">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -3741,7 +3764,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_30">
+       <widget class="QLineEdit" name="txtEStopPosDiff">
         <property name="minimumSize">
          <size>
           <width>64</width>
@@ -3760,14 +3783,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_13">
+       <widget class="QPushButton" name="btnRecover">
         <property name="text">
          <string>Recover</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_14">
+       <widget class="QPushButton" name="btnResync">
         <property name="text">
          <string>ReSync</string>
         </property>
@@ -3824,21 +3847,21 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QRadioButton" name="rbESMaster">
+          <widget class="QCheckBox" name="cbEsMaster">
            <property name="text">
             <string>Master</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="rbEsGuider">
+          <widget class="QCheckBox" name="cbEsGuider">
            <property name="text">
             <string>Guider</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="rbEsNetwork">
+          <widget class="QCheckBox" name="cbEsNetwork">
            <property name="text">
             <string>Network</string>
            </property>
@@ -3848,9 +3871,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_15">
+       <widget class="QPushButton" name="btnEsReset">
         <property name="text">
-         <string>RESET</string>
+         <string>Reset</string>
         </property>
        </widget>
       </item>
@@ -3904,7 +3927,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="rbEsEStop1">
+             <widget class="QCheckBox" name="cbEsEStop1">
               <property name="styleSheet">
                <string notr="true">QGroupBox {
     border: none;
@@ -3918,7 +3941,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsEStop2">
+             <widget class="QCheckBox" name="cbEsEStop2">
               <property name="text">
                <string>E-Stop 2</string>
               </property>
@@ -3969,14 +3992,14 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="rbEs30kW_2">
+             <widget class="QCheckBox" name="cbEs30kW">
               <property name="text">
                <string>30kW OK</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEs05kW_2">
+             <widget class="QCheckBox" name="cbEs05kW">
               <property name="text">
                <string>0.5kW OK</string>
               </property>
@@ -4027,21 +4050,21 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="rbEsBRK1OK">
+             <widget class="QCheckBox" name="cbEsBRK1OK">
               <property name="text">
                <string>BRK 1 OK</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsBRK2OK">
+             <widget class="QCheckBox" name="cbEsBRK2OK">
               <property name="text">
                <string>BRK 2 OK</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsBRK2KB">
+             <widget class="QCheckBox" name="cbEsBRK2KB">
               <property name="text">
                <string>BRK 2 KB</string>
               </property>
@@ -4103,21 +4126,21 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="rbSPS">
+             <widget class="QCheckBox" name="cbSPS">
               <property name="text">
                <string>SPS OK</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsRED">
+             <widget class="QCheckBox" name="cbEsRED">
               <property name="text">
                <string>RED OK</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsENC">
+             <widget class="QCheckBox" name="cbEsENC">
               <property name="text">
                <string>ENC OK</string>
               </property>
@@ -4155,21 +4178,21 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="rbEsPosWin">
+             <widget class="QCheckBox" name="cbEsPosWin">
               <property name="text">
                <string>PosWin</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsVelWin">
+             <widget class="QCheckBox" name="cbEsVelWin">
               <property name="text">
                <string>VelWin</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsEndlage">
+             <widget class="QCheckBox" name="cbEsEndlage">
               <property name="text">
                <string>Endlage</string>
               </property>
@@ -4231,21 +4254,21 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="rbEsG1COM">
+             <widget class="QCheckBox" name="cbEsG1COM">
               <property name="text">
                <string>G1 COM</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsG1OUT">
+             <widget class="QCheckBox" name="cbEsG1OUT">
               <property name="text">
                <string>G1 OUT</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsG1FB">
+             <widget class="QCheckBox" name="cbEsG1FB">
               <property name="text">
                <string>G1 FB</string>
               </property>
@@ -4283,21 +4306,21 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="rbEsG2COM">
+             <widget class="QCheckBox" name="cbEsG2COM">
               <property name="text">
                <string>G2 COM</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsG2OUT">
+             <widget class="QCheckBox" name="cbEsG2OUT">
               <property name="text">
                <string>G2 OUT</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbESG2FB">
+             <widget class="QCheckBox" name="cbEsG2FB">
               <property name="text">
                <string>G2 FB</string>
               </property>
@@ -4335,21 +4358,21 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QRadioButton" name="rbEsG3COM">
+             <widget class="QCheckBox" name="cbEsG3COM">
               <property name="text">
                <string>G3 COM</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsG3OUT">
+             <widget class="QCheckBox" name="cbEsG3OUT">
               <property name="text">
                <string>G3 OUT</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="rbEsG3FB">
+             <widget class="QCheckBox" name="cbEsG3FB">
               <property name="text">
                <string>G3 FB</string>
               </property>
