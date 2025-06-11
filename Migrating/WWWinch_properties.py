@@ -57,11 +57,11 @@ class AxisActProp:
     EStopCutVel      : float   = 0.0              # from 41
     EStopPosDiff     : float   = 0.0              # 
     EStopReset       : bool    = False            # from UI
-    InitAchse        : int     = 1                # from UI       
+    InitAchse        : int     = 0                # from UI       
 
 @dataclass
 class AxisSetProp:
-    Name             : str     = "AxisName"       # from 8
+    Name             : str     = ""               # from 8
     GearToUI         : float   = 1.0              # from 9
     HardMax          : float   = 300.0            # from 10
     UserMax          : float   = 300.0            # from 11

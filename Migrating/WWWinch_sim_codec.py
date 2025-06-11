@@ -8,6 +8,7 @@ class SimCodec(Codec):
         self.receivedBuff = None
         self.timeOld = None
 
+
     def simulate(self, IntervallR):
         fa = "%3.2f"
         self.ControlingPIDRx = "1234"
@@ -15,7 +16,28 @@ class SimCodec(Codec):
         self.Status = "SIMUL"
         self.GuideStatus = "SIMUL"
         self.Enable = 0
+        ''''
+        # --- Ensure simulated EStop is ready ---
+        try:
+            if hasattr(self, 'EStop') and hasattr(self.EStop, 'EsReady'):
+                self.EStop.EsReady = True
+        except AttributeError:
+            print("EStop attribute not found, skipping EsReady assignment.")    
 
+        # --- Persist InitAchse if set externally (e.g. by controller) ---
+        if hasattr(self, 'ActProp') and hasattr(self.ActProp, 'InitAchse'):
+            if getattr(self.ActProp, 'InitAchse', 0) == 1:
+                if not hasattr(self, '_persisted_initachse'):
+                    self._persisted_initachse = 1
+            elif hasattr(self, '_persisted_initachse'):
+                # Only clear if explicitly set to 0 externally
+                if getattr(self.ActProp, 'InitAchse', 0) == 0:
+                    self._persisted_initachse = 0
+        # Always use persisted value if present
+        if hasattr(self, '_persisted_initachse'):
+            self.ActProp.InitAchse = self._persisted_initachse
+
+    '''
         if self.Enable == 1:
             SpeedIstIntern = float(self.SpeedIstUI)
             SpeedSollIntern = max(min(float(self.SpeedSoll), float(self.SpeedMax)), -float(self.SpeedMax))
@@ -50,34 +72,13 @@ class SimCodec(Codec):
         self.CabTemperature = "22.2"
         self.GuidePosIstUI = "0.0"
         self.GuideIstSpeedUI = "0.0"
-        self.SpeedMaxForUI = "16.25"
-        self.PosDiffForUI = "SIMUL"
-        self.Name = "SIMUL"
-        self.GearToUI = "13.0"
-        self.PosHardMax = "299"
-        self.PosUserMax = "298"
-        self.PosUserMin = "-298"
-        self.PosHardMin = "-299"
-        self.SpeedMax = "10.5"
-        self.AccMax = "5.5"
-        self.DccMax = "5.4"
-        self.MaxAmp = "150"
-        self.FilterP = "1.0"
-        self.FilterI = "1.0"
-        self.FilterD = "1.0"
-        self.FilterIL = "1.0"
-        self.RopeSWLL = "2500.0"
-        self.RopeDiameter = "5.0"
-        self.RopeType = "SIMUL"
-        self.RopeNumber = "SIMUL"
-        self.RopeLength = "200"
+
+        
         self.GuidePitch = "-6.3"
         self.GuidePosMax = "0.97"
         self.GuidePosMaxMax = "0.97"
         self.GuidePosMin = "0.01"
-        self.PosWin = "0.01"
-        self.VelWin = "0.01"
-        self.AccTot = "5.00"
+
         self.EStopStatus = 2048
         self.EsNetwork = True
         self.EsTaster = True
@@ -85,6 +86,41 @@ class SimCodec(Codec):
         self.EStopCutPos = 0
         self.EStopCutVel = 0
         self.EsEStop2 = False
+
+        self.SetProp.Name = "SIMUL"
+        self.SetProp.GearToUI = "13.0" 
+        self.SetProp.HardMax = "299"
+        self.SetProp.UserMax = "298"
+        self.SetProp.PosOffset = "0.0"
+        self.SetProp.UserMin = "-298"
+        self.SetProp.HardMin = "-299"
+        self.SetProp.PosWin = "0.01"
+        self.SetProp.VelMaxMot = "10.5"
+        self.SetProp.VelMax = "10.5"
+        self.SetProp.AccMax = "5.5"
+        self.SetProp.DccMax = "5.4"
+        self.SetProp.AccMove = "5.5"
+        self.SetProp.MaxAmp = "150"
+        self.SetProp.VelWin = "0.01"
+        self.SetProp.FilterP = "1.0"
+        self.SetProp.FilterI = "1.0"
+        self.SetProp.FilterD = "1.0"
+        self.SetProp.FilterIL = "1.0"
+        self.SetProp.RopeSWLL = "2500.0"
+        self.SetProp.RopeDiameter = "5.0"
+        self.SetProp.RopeType = "SIMUL"
+        self.SetProp.RopeNumber = "SIMUL"
+        self.SetProp.RopeLength = "200"
+        self.SetProp.SpeedMaxForUI = "16.25"
+        self.SetProp.PosDiffForUI = "SIMUL"
+        self.SetProp.AccTot = "5.00"
+        self.SetProp.Rampform = "SIMUL"
+
+
+        # Set all cbEs... bits to True for simulation
+        #for attr in dir(self.EStop):
+        #    if attr.startswith('Es') and isinstance(getattr(self.EStop, attr), bool):
+        #        setattr(self.EStop, attr, True)
 
     def step_sim(self):
         time_now = time.perf_counter()
@@ -95,3 +131,14 @@ class SimCodec(Codec):
         self.simulate(IntervallR)
         self.receivedBuff = self.pack(self.__dict__)
         return self.receivedBuff
+
+    #def unpack(self, data):
+        # Always persist SetProp.Name across cycles
+        #super().unpack(data)
+        #if hasattr(self, 'SetProp') and hasattr(self.SetProp, 'Name'):
+         #   if self.SetProp.Name:
+        #        self._last_axis_name = self.SetProp.Name
+        #    elif self._last_axis_name:
+        #        self.SetProp.Name = self._last_axis_name
+        #print(f"[SimCodec] unpack: SetProp.Name={getattr(self.SetProp, 'Name', None)} _last_axis_name={getattr(self, '_last_axis_name', None)}")
+        #return data

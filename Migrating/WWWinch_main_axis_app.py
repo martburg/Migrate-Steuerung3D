@@ -4,8 +4,8 @@ import signal
 import time
 from subprocess import Popen, CalledProcessError, SubprocessError
 from PySide6.QtWidgets import QApplication, QMessageBox
-from WWWinch_axis_widget import Widget
-from WWWinch_axis_controler import Controller
+from WWWinch_widget import Widget
+from WWWinch_controler import Controller
 
 ACHSEN = {
     'Anton':  ("172.16.17.1", 15001, "172.16.17.5", 15001),
@@ -46,29 +46,14 @@ def main():
 
     app = QApplication(sys.argv)
 
-    # --- Launch Backend ---
-    try:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        backend_script = os.path.join(script_dir, "WWWinch_axis_backend_udp.py")
-
-        if not os.path.isfile(backend_script):
-            raise FileNotFoundError(f"Backend script not found: {backend_script}")
-
-        achse_proc = Popen(
-            [sys.executable, backend_script, "--achse", "SIMUL"],
-            stdout=sys.stdout, stderr=sys.stderr
-        )
-
-    except (FileNotFoundError, SubprocessError) as e:
-        QMessageBox.critical(None, "Startup Error", f"Failed to start backend:\n{e}")
-        sys.exit(1)
-
     # --- Launch UI ---
     try:
         time.sleep(0.2)  # Let backend init shared memory
 
         widget = Widget()
+
         controller = Controller(widget)
+
         controller.start()
 
         widget.show()

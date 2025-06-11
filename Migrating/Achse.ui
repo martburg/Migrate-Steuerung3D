@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>856</width>
-    <height>454</height>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,29 +59,34 @@
       <item>
        <widget class="QComboBox" name="cmbAxisName">
         <property name="currentText">
-         <string>ANTON</string>
+         <string/>
         </property>
         <property name="placeholderText">
          <string notr="true"/>
         </property>
         <item>
          <property name="text">
-          <string>ANTON</string>
+          <string/>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>BURT</string>
+          <string>Anton</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>CECIL</string>
+          <string>Burt</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>DEBBY</string>
+          <string>Cecil</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Debby</string>
          </property>
         </item>
         <item>
@@ -93,6 +98,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtPosIst">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>64</width>
@@ -100,12 +108,15 @@
          </size>
         </property>
         <property name="text">
-         <string>999.99 m</string>
+         <string>0 m</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="txtSpeedIstUI">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>64</width>
@@ -113,12 +124,15 @@
          </size>
         </property>
         <property name="text">
-         <string>99.99 m/s</string>
+         <string>0 m/s</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="txtActCurUI">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>64</width>
@@ -126,12 +140,18 @@
          </size>
         </property>
         <property name="text">
-         <string>150 A</string>
+         <string>0 A</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QSlider" name="sldAxisVel">
+        <property name="minimum">
+         <number>-32767</number>
+        </property>
+        <property name="maximum">
+         <number>32767</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>
         </property>
@@ -139,6 +159,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtStatus">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>120</width>
@@ -152,6 +175,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnAxisReset">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Reset</string>
         </property>
@@ -159,6 +185,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtCabTemperature">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>40</width>
@@ -166,12 +195,15 @@
          </size>
         </property>
         <property name="text">
-         <string>99°C</string>
+         <string>0°C</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="txtTimeTick">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>30</width>
@@ -179,7 +211,7 @@
          </size>
         </property>
         <property name="text">
-         <string>999</string>
+         <string>0</string>
         </property>
        </widget>
       </item>
@@ -229,6 +261,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtSelected1">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -361,6 +396,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtSelected2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -473,6 +511,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="btnPosEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -591,6 +632,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtHardMax">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -610,7 +654,7 @@
                </size>
               </property>
               <property name="text">
-               <string>300.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -673,6 +717,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtUserMax">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -686,7 +733,7 @@
                </size>
               </property>
               <property name="text">
-               <string>300.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -749,6 +796,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtPosOffset">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -762,7 +812,7 @@
                </size>
               </property>
               <property name="text">
-               <string>0.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -825,6 +875,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtUserMin">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -838,7 +891,7 @@
                </size>
               </property>
               <property name="text">
-               <string>-300.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -901,6 +954,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtHardMin">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -914,7 +970,7 @@
                </size>
               </property>
               <property name="text">
-               <string>-300.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -977,6 +1033,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtPosWin">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -990,7 +1049,7 @@
                </size>
               </property>
               <property name="text">
-               <string>0.5</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1021,6 +1080,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="btnPosWrite">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -1047,6 +1109,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnPosCancel">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -1118,6 +1183,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="btnVelEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -1233,7 +1301,7 @@
                </size>
               </property>
               <property name="text">
-               <string>16.25</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1296,6 +1364,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtVelMax">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1309,7 +1380,7 @@
                </size>
               </property>
               <property name="text">
-               <string>5.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1372,6 +1443,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtAccMax">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1385,7 +1459,7 @@
                </size>
               </property>
               <property name="text">
-               <string>5.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1448,6 +1522,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtDccMax">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1461,7 +1538,7 @@
                </size>
               </property>
               <property name="text">
-               <string>5.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1524,6 +1601,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtAccMove">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1537,7 +1617,7 @@
                </size>
               </property>
               <property name="text">
-               <string>5.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1600,6 +1680,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtMaxAmp">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1613,7 +1696,7 @@
                </size>
               </property>
               <property name="text">
-               <string>100</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1676,6 +1759,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtVelWin">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -1689,7 +1775,7 @@
                </size>
               </property>
               <property name="text">
-               <string>0.5</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1720,6 +1806,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="btnVelWrite">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -1746,6 +1835,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnVelCancel">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -1811,6 +1903,9 @@
             </property>
             <item>
              <widget class="QLineEdit" name="txtGuidePosIstUI">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1824,6 +1919,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnGuideEngaged">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1837,6 +1935,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtGuideIstSpeedUI">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -1878,6 +1979,9 @@
             </property>
             <item>
              <widget class="QLineEdit" name="txtGuideStatus">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>80</width>
@@ -1904,6 +2008,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnGuideReset">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -2031,6 +2138,12 @@
                 <height>20</height>
                </size>
               </property>
+              <property name="minimum">
+               <number>-32767</number>
+              </property>
+              <property name="maximum">
+               <number>32767</number>
+              </property>
               <property name="orientation">
                <enum>Qt::Orientation::Horizontal</enum>
               </property>
@@ -2101,6 +2214,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="btnGuideEdit">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="maximumSize">
                   <size>
                    <width>64</width>
@@ -2171,6 +2287,9 @@
                </item>
                <item>
                 <widget class="QLineEdit" name="txtGuidePitch">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
@@ -2190,6 +2309,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="btnGuideWrite">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="maximumSize">
                   <size>
                    <width>64</width>
@@ -2247,6 +2369,9 @@
                </item>
                <item>
                 <widget class="QLineEdit" name="txtGuidePosMax">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
@@ -2319,6 +2444,9 @@
                </item>
                <item>
                 <widget class="QLineEdit" name="txtGuidePosMin">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
@@ -2338,6 +2466,9 @@
                </item>
                <item>
                 <widget class="QPushButton" name="btnGuideCancel">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="maximumSize">
                   <size>
                    <width>64</width>
@@ -2412,6 +2543,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="btnFilterEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -2501,7 +2635,7 @@
                </size>
               </property>
               <property name="text">
-               <string>0.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -2564,6 +2698,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtFilterP">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2577,7 +2714,7 @@
                </size>
               </property>
               <property name="text">
-               <string>1.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -2640,6 +2777,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtFilterI">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2653,7 +2793,7 @@
                </size>
               </property>
               <property name="text">
-               <string>1.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -2716,6 +2856,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtFilterD">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2729,7 +2872,7 @@
                </size>
               </property>
               <property name="text">
-               <string>1.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -2792,6 +2935,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtFilterIL">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2805,7 +2951,7 @@
                </size>
               </property>
               <property name="text">
-               <string>1.00</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -2868,6 +3014,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="txtRampform">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>64</width>
@@ -2881,7 +3030,7 @@
                </size>
               </property>
               <property name="text">
-               <string>8</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -2951,6 +3100,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="btnFilterWrite">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -2977,6 +3129,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnFilterCancel">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>64</width>
@@ -3051,6 +3206,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="btnRopeEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -3143,7 +3301,7 @@
                </size>
               </property>
               <property name="text">
-               <string>2700</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -3222,7 +3380,7 @@
                </size>
               </property>
               <property name="text">
-               <string>6</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -3301,7 +3459,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Dynema</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -3380,7 +3538,7 @@
                </size>
               </property>
               <property name="text">
-               <string>999</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -3459,7 +3617,7 @@
                </size>
               </property>
               <property name="text">
-               <string>999</string>
+               <string>0</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -3542,6 +3700,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="btnRopeWrite">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -3574,6 +3735,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnRopeCancel">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -3646,6 +3810,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtEStopCutPos">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -3665,7 +3832,7 @@
          </size>
         </property>
         <property name="text">
-         <string>999.99 m</string>
+         <string>0 m</string>
         </property>
        </widget>
       </item>
@@ -3678,6 +3845,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtEStopCutVel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>64</width>
@@ -3691,7 +3861,7 @@
          </size>
         </property>
         <property name="text">
-         <string>99.99 m/s</string>
+         <string>0 m/s</string>
         </property>
        </widget>
       </item>
@@ -3723,6 +3893,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtEStopCutTime">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -3765,6 +3938,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="txtEStopPosDiff">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>64</width>
@@ -3778,12 +3954,15 @@
          </size>
         </property>
         <property name="text">
-         <string>99.99 m</string>
+         <string>0 m</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnRecover">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Recover</string>
         </property>
@@ -3791,6 +3970,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnResync">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>ReSync</string>
         </property>
@@ -3872,6 +4054,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnEsReset">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Reset</string>
         </property>
@@ -4126,7 +4311,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QCheckBox" name="cbSPS">
+             <widget class="QCheckBox" name="cbEsSPS">
               <property name="text">
                <string>SPS OK</string>
               </property>
@@ -4195,6 +4380,12 @@
              <widget class="QCheckBox" name="cbEsEndlage">
               <property name="text">
                <string>Endlage</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -4359,8 +4550,17 @@
             </property>
             <item>
              <widget class="QCheckBox" name="cbEsG3COM">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="text">
                <string>G3 COM</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
               </property>
              </widget>
             </item>

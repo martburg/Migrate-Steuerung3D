@@ -1,6 +1,6 @@
 from Migrating.WWWinch_properties import WWWinchProperties
 from Migrating.WWWinch_codec import WWWinchCodec
-from Achsmemory import Achsmemory
+from Migrating.WWWinch_achsmemory import Achsmemory
 import time
 import socket
 

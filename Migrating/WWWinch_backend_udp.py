@@ -1,6 +1,6 @@
 from WWWinch_codec import Codec
 from WWWinch_sim_codec import SimCodec
-from Achsmemory import Achsmemory
+from WWWinch_achsmemory import Achsmemory
 import time
 import socket
 import argparse
@@ -27,6 +27,7 @@ class backend_udp:
 
         self.shm_in  = Achsmemory(MEM_NAME_GUI2HW, wait=True)
         self.shm_out = Achsmemory(MEM_NAME_HW2GUI, wait=True)
+        self.shm_out.write({})
 
         self.Host    = ACHSEN[KontaktData][0]
         self.Port    = ACHSEN[KontaktData][1]
@@ -35,10 +36,16 @@ class backend_udp:
 
         self.recaddr = (self.RecHost,self.RecPort)
 
+        self.receivedBuff = b"" 
+
         if KontaktData == 'SIMUL':
-            self.Codec = SimCodec()
+            self.Backend_Codec = SimCodec()
+            print(f"[Backend] Using SimCodec")
         else:
-            self.Codec = Codec()
+            self.Backend_Codec = Codec()        
+            print(f"[Backend] Using Codec")
+        
+        self.Backend_Codec.SetProp.Name = KontaktData
 
         self._init_sockets()
 
@@ -49,13 +56,14 @@ class backend_udp:
             try:
                 controler_in_data = self.shm_in.read()
 
-                Data = self.Codec.pack(controler_in_data)
+                self.Backend_Codec.unpack(controler_in_data)
+                Data = self.Backend_Codec.pack(controler_in_data)
 
                 self.send(Data)
 
                 controler_out_data = self.receive()
 
-                self.shm_out.write(self.Codec.to_dict(controler_out_data))
+                self.shm_out.write(self.Backend_Codec.to_dict(controler_out_data))
 
                 time.sleep(0.01)
             except KeyboardInterrupt:
@@ -84,7 +92,7 @@ class backend_udp:
                     pass
         else:
             self.sock       = None
-            self.recUDPSock = None
+            self.recUDPsock = None
 
     def send(self,Data):
         """
@@ -95,6 +103,9 @@ class backend_udp:
                 self.sock.sendto(Data, (self.Host, self.Port)) 
             except:
                 pass
+        else:
+            # In simulation mode, store the last sent data for loopback
+            self._sim_last_data = Data
 
     def receive(self):
         """
@@ -105,13 +116,20 @@ class backend_udp:
                 self.received,addr = self.recUDPSock.recvfrom(601)
                 self.receivedBuff = self.received
             except socket.timeout:
-                self.received = self.receivedBuff
+                self.received = getattr(self, 'receivedBuff', None)
+                if not self.received:
+                    print("[Backend] Warning: No previous UDP data received — skipping this cycle.")
+                    return None  # ← KEY CHANGE
             else:
                 self.received = self.receivedBuff
 
-            self.Codec.unpack(self.received)
+            self.Backend_Codec.unpack(self.received)
         else:
-            self.received = self.Codec.step_sim()
+            # In simulation mode, step the simulation and return the result
+            if hasattr(self.Backend_Codec, 'step_sim'):
+                self.received = self.Backend_Codec.step_sim()
+            else:
+                self.received = getattr(self, '_sim_last_data', None)
 
         return self.received
 

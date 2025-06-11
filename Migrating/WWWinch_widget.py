@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import Signal
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 from PySide6.QtWidgets import QLineEdit, QLabel, QRadioButton, QSlider, QCheckBox
@@ -9,6 +9,13 @@ import os,re
 
 
 class Widget(QWidget):
+    """Widget for displaying and controlling axis properties in the WWWinch application."""
+
+    axis_selected                 = Signal(str)  # Emit selected axis name
+    edit_setPosProps_requested    = Signal()  # Signal for edit Pos state
+    edit_setVelProps_requested    = Signal()  # Signal for edit Vel state
+    edit_setFilterProps_requested = Signal()  # Signal for edit Filter state
+
     def __init__(self):
         super().__init__()
 
@@ -94,17 +101,24 @@ class Widget(QWidget):
                 "cbEsVelWin":     ("QCheckBox", "EStop.EsVelWin", None),
                 "cbEsEStop1":     ("QCheckBox", "EStop.EsEStop1", None),
                 "cbEsEStop2":     ("QCheckBox", "EStop.EsEStop2", None),
-                "cbSPS":          ("QCheckBox", "EStop.EsSPSOK", None),
-                "cbEsRED":        ("QCheckBox", "EStop.EsReady", None),
+                "cbEsSPS":        ("QCheckBox", "EStop.EsSPSOK", None),
+                "cbEsRED":        ("QCheckBox", "EStop.EsSteuerwort", None),
                 "cbEsENC":        ("QCheckBox", "EStop.EsENC", None),
                 "cbGuideOnline":  ("QCheckBox", "Guide.ActProp.GuideStatus", None),
                 "cbGuideReady":   ("QCheckBox", "Guide.ActProp.GuideStatus", None),
                 "cbOnline":       ("QCheckBox", "ActProp.Enable", None),
                 "cbReady":        ("QCheckBox", "EStop.EsReady", None),
                 # Sliders 
-                "sldAxisVel":     ("QSlider", "ActProp.SpeedIstUI", None),
+                "sldAxisVel":     ("QSlider", "ActProp.SpeedSoll", None),
                 "sldGuideSpeed":  ("QSlider", "Guide.ActProp.GuideIstSpeedUI", None),
             }
+        
+        # Bind signals to slots
+        self.ui.cmbAxisName.currentIndexChanged.connect(self._on_axis_select)
+        self.ui.btnPosEdit.clicked.connect(self._on_click_PosEdit)
+        self.ui.btnVelEdit.clicked.connect(self._on_click_VelEdit)
+        self.ui.btnFilterEdit.clicked.connect(self._on_click_FilterEdit)
+        
 
     def _load_ui(self):
         loader = QUiLoader()
@@ -123,6 +137,20 @@ class Widget(QWidget):
         layout.addWidget(self.ui)
 
         self.setFixedSize(self.ui.size())
+
+    def _on_click_PosEdit(self):
+        self.edit_setPosProps_requested.emit() 
+
+    def _on_click_VelEdit(self):
+        self.edit_setVelProps_requested.emit()
+
+    def _on_click_FilterEdit(self):
+        self.edit_setFilterProps_requested.emit()
+
+    def _on_axis_select(self, index):
+        axis_name = self.ui.cmbAxisName.itemText(index)
+        self.axis_selected.emit(axis_name)
+
 
     def get_properties(self):
         """Collects all properties from the UI widgets and returns them as a dictionary."""

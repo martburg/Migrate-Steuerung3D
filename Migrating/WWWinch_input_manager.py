@@ -29,7 +29,7 @@ class Joystick:
     def read(self):
         if self.js:
             pygame.event.pump()
-            return self.js.get_axis(1) * 10  # Scale to [-10, +10]
+            return self.js.get_axis(1) * 32767  # Scale to [-32767, +32767]
         else:
             return 0.0
 
@@ -43,6 +43,8 @@ class InputManager:
         This modifies `props` in place.
         """
         val = self.joystick.read()
+        #print(f"[InputManager] Joystick value: {val}")
         if "ActProp" not in props:
             props["ActProp"] = {}
+
         props["ActProp"]["SpeedSoll"] = val

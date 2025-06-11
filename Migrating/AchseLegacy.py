@@ -428,6 +428,7 @@ class YellowAxisUI(wx.Frame):
             self.btnAxisReset.SetLabel("reseting")
         else:        
             self.btnAxisReset.SetLabel("Reset")
+    
     def OnAxisEnable(self,evt):
 
         if self.btnAxisReset.GetValue():
@@ -453,10 +454,7 @@ class YellowAxisUI(wx.Frame):
                 self.sldAxisVel.Refresh
                 self.StatusPanelColour = "RedBrown"                
             #Clutch
-                
-
-
-    #--------------------------------------------------------------- 
+#--------------------------------------------------------------- 
     def OnAxisSetupPosEdit(self, evt):
         #print "AxisSetupPosEdit"
         self.DisableControls()
@@ -555,8 +553,7 @@ class YellowAxisUI(wx.Frame):
         self.txtAxisSetupPosUserMin.SetBackgroundColour(wx.Colour(187,187,187))
         self.txtAxisSetupPosHardMin.SetBackgroundColour(wx.Colour(187,187,187))
         self.txtAxisSetupPosPosWin.SetBackgroundColour(wx.Colour(187,187,187))
-
-    #---------------------------------------------------------------
+#---------------------------------------------------------------
     def OnAxisSetupVelEdit(self, evt):
         #print "AxisSetupVelEdit"  
         self.DisableControls()
@@ -671,7 +668,6 @@ class YellowAxisUI(wx.Frame):
         self.txtAxisSetupMaxAmp.SetBackgroundColour(wx.Colour(187,187,187))
         self.txtAxisSetupVelWin.SetBackgroundColour(wx.Colour(187,187,187))
 
-
     def OnAxisSetupVelCancel(self, evt):
         #print "AxisSetupVelCancel" 
         self.EnableControls()
@@ -699,7 +695,6 @@ class YellowAxisUI(wx.Frame):
         self.txtAxisSetupAccTot.SetBackgroundColour(wx.Colour(187,187,187))        
         self.txtAxisSetupMaxAmp.SetBackgroundColour(wx.Colour(187,187,187))
         self.txtAxisSetupVelWin.SetBackgroundColour(wx.Colour(187,187,187)) 
-
 #----------------------------------------------------------------
     def OnAxisSetupGuideSetup(self, evt):
         #print "AxisSetupGuideSetup"
@@ -779,7 +774,6 @@ class YellowAxisUI(wx.Frame):
         self.txtAxisSetupGuidePosMax.SetBackgroundColour(wx.Colour(187,187,187))
         self.txtAxisSetupGuidePosMin.SetBackgroundColour(wx.Colour(187,187,187)) 
 
-
     def OnAxisSetupGuideReset(self, evt):
         #print "AxisSetupGuideReset"
         self.btnAxisSetupGuideClutch.SetLabel('reseting')
@@ -802,8 +796,6 @@ class YellowAxisUI(wx.Frame):
             self.GuideControl = 2
             self.EnableGuideControls()
             self.btnAxisSetupGuideClutch.SetLabel('dis-engaged')
-
-    
 #----------------------------------------------------------------
     def OnAxisSetupFilterEdit(self, evt):
         #print "AxisSetupFilterEdit" 
@@ -868,7 +860,6 @@ class YellowAxisUI(wx.Frame):
         self.txtAxisSetupFilterI.SetBackgroundColour(wx.Colour(187,187,187))        
         self.txtAxisSetupFilterD.SetBackgroundColour(wx.Colour(187,187,187))
         self.txtAxisSetupFilterIL.SetBackgroundColour(wx.Colour(187,187,187)) 
-
 #-------------------------------------------------------------------------------
     def OnEReset(self,evt):
         if self.btnEReset.GetValue():
@@ -880,7 +871,6 @@ class YellowAxisUI(wx.Frame):
             if abs(float(self.txtPosDiff.GetValue())) < 0.01:
                 self.OnReSync(1)
             self.btnEReset.SetValue(False)
-
             
     def EnableGuideControls(self):
         #print "Enabel Guide Controls" 
@@ -890,7 +880,6 @@ class YellowAxisUI(wx.Frame):
         #print "Disabel Guide Controls" 
 
         self.btnAxisSetupGuideReset.Enable(False)
-
 #----------------------------------------------------------------    
     def GoOnline(self):
         # Pruefe ob anderer Client das Commando hat
@@ -904,7 +893,6 @@ class YellowAxisUI(wx.Frame):
             self.txtTimeTick.Refresh()
             self.cmbAxisName.Refresh()
             self.Online = True
-
 
     def GoOffline(self):
         #if self.Online == True:
@@ -923,7 +911,6 @@ class YellowAxisUI(wx.Frame):
             #print "Online Permission"
             App.Yellow.Intent  = 'True'
             self.Controlle = True
-
 
     def DenyOnline(self):
         if self.Controlle == True:
@@ -984,6 +971,7 @@ class YellowAxisUI(wx.Frame):
             self.ControlsEnabeled = False
             self.btnRecover.Enable(False)
             self.btnReSync.Enable(False)
+
     def EnableControls(self):
         if not(self.ControlsEnabeled):
             #print 'Enabeling Controls'
@@ -1173,12 +1161,10 @@ class YellowAxisUI(wx.Frame):
 
         taskMgr.add(self.AxisTask,'YellowAxisTask')        
 
-
     def AxisTask(self,task):
         
         self.refresh()
-        return task.cont
-    
+        return task.cont   
     
     def refresh(self):
         
@@ -1336,9 +1322,7 @@ class YellowAxisUI(wx.Frame):
         self.txtAxisSetupFilterIL.SetValue(App.Yellow.FilterIL)
         self.txtAxisSetupGuidePitch.SetValue(App.Yellow.GuidePitch)
         self.txtAxisSetupGuidePosMax.SetValue(App.Yellow.GuidePosMax)
-        self.txtAxisSetupGuidePosMin.SetValue(App.Yellow.GuidePosMin)
-        
-
+        self.txtAxisSetupGuidePosMin.SetValue(App.Yellow.GuidePosMin)       
 
     def comunicateServer(self):
         App.Yellow.comunicateServer()
@@ -1409,8 +1393,6 @@ class YellowAxisUI(wx.Frame):
             self.FahrbefehlOld = 1
             
         App.Yellow.PosSoll= str(float(self.Pos0)+self.VX*(self.DiffT))        
-
-    
     
     def writeDataToGUI(self):        
         a=self.Decode.Decode(App.Yellow.Status)                         
@@ -1738,6 +1720,7 @@ class YellowAxisUI(wx.Frame):
                     dlg.Destroy                                  
                 self.Modus = 'rE'
                 self.WriteZaehler = 0
+
     def readJoystick(self):
 
         if not((self.Modus ==  'E') or (self.Modus ==  'w')):
@@ -1841,10 +1824,7 @@ class YellowAxisUI(wx.Frame):
         #print       self.diff2
         #print       self.min3
         #print       self.max3
-        #print       self.diff3
-        
-        
-        
+        #print       self.diff3    
         
     def CheckStatus(self):
         ##if self.ControlingPIDRx == "0"   or self.ControlingPIDRx == str(App.Yellow.OwnPID) :
@@ -1858,7 +1838,6 @@ class YellowAxisUI(wx.Frame):
             self.GoOnline()
         else:
             self.GoOffline()
-
 
     def OnClose(self,evt):
 

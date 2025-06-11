@@ -1,0 +1,74 @@
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="offline">
+
+  <state id="offline">
+    <transition event="power_on" cond="can_init" target="normal.to_init" />
+  </state>
+
+  <state id="normal">
+    <initial>
+      <transition target="to_init" />
+    </initial>
+
+    <state id="to_init">
+      <transition event="enter_init" target="init" />
+    </state>
+
+    <state id="init">
+      <transition event="init_done" cond="is_ready" target="to_idle" />
+    </state>
+
+    <state id="to_idle">
+      <transition event="enter_idle" target="idle" />
+    </state>
+
+    <state id="idle">
+      <transition event="start_move" cond="is_moving" target="moving" />
+    </state>
+
+    <state id="moving">
+      <transition event="hold" cond="is_holding" target="holding" />
+    </state>
+
+    <state id="holding">
+      <transition event="move" cond="is_moving" target="moving" />
+    </state>
+  </state>
+
+  <state id="edit">
+    <state id="to_e_PosProps">
+      <transition event="proceed_Pos_edit" target="edit_PosProps" />
+    </state>
+    <state id="edit_PosProps">
+      <transition event="finish_edit" target="normal.idle" />
+    </state>
+
+    <state id="to_e_VelProps">
+      <transition event="proceed_Vel_edit" target="edit_VelProps" />
+    </state>
+    <state id="edit_VelProps">
+      <transition event="finish_edit" target="normal.idle" />
+    </state>
+
+    <state id="to_e_FilterProps">
+      <transition event="proceed_Filter_edit" target="edit_FilterProps" />
+    </state>
+    <state id="edit_FilterProps">
+      <transition event="finish_edit" target="normal.idle" />
+    </state>
+  </state>
+
+  <state id="fault_handling">
+    <state id="faulted">
+      <transition event="recover" cond="wants_reset" target="recovering" />
+    </state>
+    <state id="recovering">
+      <!-- Split compound condition into script -->
+      <transition event="resume" cond="ready_and_no_fault" target="normal.idle" />
+    </state>
+  </state>
+
+  <!-- Global Transitions -->
+  <transition event="trip" cond="has_fault" target="fault_handling.faulted" />
+  <transition event="shutdown" cond="in_estop" target="offline" />
+
+</scxml>
