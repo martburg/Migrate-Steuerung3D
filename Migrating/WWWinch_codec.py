@@ -16,38 +16,130 @@ class Codec:
         self.EStop   = props.Axis.EStop
 
     
-    def pack(self,data):
+    def pack(self, data):
         """
-        Encodes the properties.
+        Serialize SetProp into a legacy-style semicolon-delimited message string,
+        exactly as expected by the PLC.
         """
-        Data = data.copy()  # Create a copy to avoid modifying the original data
 
-        # Implement packing logic here
+        def get(d, key, default="0"):
+            return str(d.get(key, default))
 
-        return Data
-    
-    def unpack(self, data):
-        """
-        Decodes the dictionary and populates internal properties.
-        """
-        def update_fields(obj, values: dict):
-            for key, val in values.items():
-                if hasattr(obj, key):
-                    setattr(obj, key, val)
+        ActProp = data.get("ActProp", {})
+        SetProp = data.get("SetProp", {})
+        GuideSetProp = data.get("Guide", {}).get("SetProp", {})
 
-        if "ActProp" in data:
-            update_fields(self.ActProp, data["ActProp"])
-        if "SetProp" in data:
-            update_fields(self.SetProp, data["SetProp"])
-        if "Guide" in data:
-            if "ActProp" in data["Guide"]:
-                update_fields(self.Guide.ActProp, data["Guide"]["ActProp"])
-            if "SetProp" in data["Guide"]:
-                update_fields(self.Guide.SetProp, data["Guide"]["SetProp"])
-        if "EStop" in data:
-            update_fields(self.EStop, data["EStop"])
+        # Use Modus from ActProp
+        s = ";".join([
+            get(data, "LifeTick", "1"),
+            get(ActProp, "Modus", "r"),            # ✅ now correct
+            get(ActProp, "OwnPID", "0000"),
+            get(ActProp, "ControlingPIDTx", "0000"),
+            get(ActProp, "Intent", "False"),
+            get(ActProp, "Enable", "0"),
+            get(GuideSetProp, "Control", "0"),
+            get(ActProp, "SpeedSoll", "0.0"),
+            get(GuideSetProp, "SpeedSoll", "0.0"),
+            get(ActProp, "PosSoll", "0.0"),
+            get(ActProp, "EStopReset", "0"),
+            get(ActProp, "ReSync", "0"),
+            get(data.get("EStop", {}), "GUINotHalt", "0"),
+        ])
 
-        return data  # optionally return the decoded dict too
+        if get(ActProp, "Modus", "r") == "w":
+            s += ";" + ";".join([
+                get(SetProp, "AccMove"),
+                get(SetProp, "DccMax"),
+                get(SetProp, "HardMax"),
+                get(SetProp, "UserMax"),
+                get(SetProp, "UserMin"),
+                get(SetProp, "HardMin"),
+                get(SetProp, "VelMax"),
+                get(SetProp, "AccMax"),
+                get(SetProp, "DccMax"),
+                get(SetProp, "MaxAmp"),
+                get(SetProp, "FilterP"),
+                get(SetProp, "FilterI"),
+                get(SetProp, "FilterD"),
+                get(SetProp, "FilterIL"),
+                get(GuideSetProp, "GuidePitch"),
+                get(GuideSetProp, "GuidePosMax"),
+                get(GuideSetProp, "GuidePosMin"),
+                get(SetProp, "VelOrPos", "0"),
+                get(SetProp, "PosWin"),
+                get(SetProp, "VelWin"),
+                get(SetProp, "AccTot"),
+            ])
+
+        s += ";EOD\\;"
+        return s.encode("utf-8")
+
+def unpack(self, raw):
+    """
+    Parse the PLC response string from shared memory or UDP reply.
+    Updates internal ActProp and Guide.ActProp dictionaries.
+    """
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", errors="ignore")
+
+    if not isinstance(raw, str) or not raw:
+        return
+
+    # Remove EOD and trailing semicolon, then split
+    raw = raw.replace("EOD\\", "").strip(";")
+    fields = raw.split(";")
+
+    # Defensive: Expected number of fields is at least 38
+    if len(fields) < 38:
+        print("[Codec.unpack] Warning: short packet")
+        return
+
+    # Assign into ActProp and Guide.ActProp as needed
+    ap = self.ActProp
+    gp = self.Guide.ActProp
+
+    try:
+        ap.ControlPID       = fields[0]
+        ap.LifetickUItx     = float(fields[1])
+        ap.Status           = int(fields[2])
+        ap.GuideStatus      = int(fields[3])
+        ap.PosIst           = float(fields[4])
+        ap.SpeedIstUI       = float(fields[5])
+        ap.MasterMomentUI   = float(fields[6])
+        ap.CabTemperatureUI = float(fields[7])
+        ap.Name             = fields[8]
+        ap.GearToUI         = float(fields[9])
+        ap.HardMax          = float(fields[10])
+        ap.UserMax          = float(fields[11])
+        ap.UserMin          = float(fields[12])
+        ap.HardMin          = float(fields[13])
+        ap.VelMax           = float(fields[14])
+        ap.AccMax           = float(fields[15])
+        ap.DccMax           = float(fields[16])
+        ap.MaxAmp           = float(fields[17])
+        ap.FilterP          = float(fields[18])
+        ap.FilterI          = float(fields[19])
+        ap.FilterD          = float(fields[20])
+        ap.FilterIL         = float(fields[21])
+        ap.RopeSWLL         = float(fields[22])
+        ap.RopeDiameter     = float(fields[23])
+        ap.RopeType         = fields[24]
+        ap.RopeNumber       = fields[25]
+        ap.RopeLength       = float(fields[26])
+        gp.GuidePitch       = float(fields[27])
+        gp.GuidePosMax      = float(fields[28])
+        gp.GuidePosMin      = float(fields[29])
+        gp.GuidePosIstUI    = float(fields[30])
+        gp.GuideIstSpeedUI  = float(fields[31])
+        ap.MotAuslastUI     = float(fields[32])
+        ap.ActCurUI         = float(fields[33])
+        ap.SpeedMaxforUI    = float(fields[34])
+        ap.PosDiffForUI     = float(fields[35])
+        ap.RampenformUI     = int(fields[36])
+        ap.EStopStatus      = int(fields[37])
+    except Exception as e:
+        print(f"[Codec.unpack] Parse error: {e}")
+
 
     def __decode(self, data):
         """

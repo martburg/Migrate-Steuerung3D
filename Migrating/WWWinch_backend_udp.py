@@ -25,9 +25,9 @@ class backend_udp:
 
     def __init__(self, KontaktData='SIMUL'):
 
-        self.shm_in  = Achsmemory(MEM_NAME_GUI2HW, wait=True)
-        self.shm_out = Achsmemory(MEM_NAME_HW2GUI, wait=True)
-        self.shm_out.write({})
+        self.GUI2HW  = Achsmemory(MEM_NAME_GUI2HW, wait=True)
+        self.HW2GUI = Achsmemory(MEM_NAME_HW2GUI, wait=True)
+        self.HW2GUI.write({})
 
         self.Host    = ACHSEN[KontaktData][0]
         self.Port    = ACHSEN[KontaktData][1]
@@ -54,7 +54,7 @@ class backend_udp:
     def run(self):
         while True:
             try:
-                controler_in_data = self.shm_in.read()
+                controler_in_data = self.GUI2HW.read()
 
                 self.Backend_Codec.unpack(controler_in_data)
                 Data = self.Backend_Codec.pack(controler_in_data)
@@ -63,7 +63,7 @@ class backend_udp:
 
                 controler_out_data = self.receive()
 
-                self.shm_out.write(self.Backend_Codec.to_dict(controler_out_data))
+                self.HW2GUI.write(self.Backend_Codec.to_dict(controler_out_data))
 
                 time.sleep(0.01)
             except KeyboardInterrupt:

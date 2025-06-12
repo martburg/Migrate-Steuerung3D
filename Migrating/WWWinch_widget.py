@@ -18,6 +18,8 @@ class Widget(QWidget):
     edit_setGuideProps_requested  = Signal()   # Signal for edit Guide state
     edit_cancel_requested         = Signal(str)  # Signal will carry group name: "Pos", "Vel", "Filter", "Guide"
     edit_commit_requested         = Signal(str)  # Signal to commit changes, will carry group name: "Pos", "Vel", "Filter", "Guide"
+    click_EsReset_requested       = Signal()
+    click_EStop_requested         = Signal()
 
     def __init__(self):
         super().__init__()
@@ -130,11 +132,13 @@ class Widget(QWidget):
         self.ui.btnVelWrite.clicked.connect(lambda: self.edit_commit_requested.emit("Vel"))
         self.ui.btnFilterWrite.clicked.connect(lambda: self.edit_commit_requested.emit("Filter"))
         self.ui.btnGuideWrite.clicked.connect(lambda: self.edit_commit_requested.emit("Guide"))
+        self.ui.btnEsReset.clicked.connect(self._on_click_EsReset)
+        self.ui.btnEStop.clicked.connect(self._on_click_EStop)
             
 
     def _load_ui(self):
         loader = QUiLoader()
-        ui_path = os.path.join(os.path.dirname(__file__), "Achse.ui")
+        ui_path = os.path.join(os.path.dirname(__file__), "Achse_Linux.ui")
         ui_file = QFile(ui_path)
 
         if not ui_file.exists():
@@ -165,6 +169,12 @@ class Widget(QWidget):
     def _on_axis_select(self, index):
         axis_name = self.ui.cmbAxisName.itemText(index)
         self.axis_selected.emit(axis_name)
+
+    def _on_click_EsReset(self):
+        self.click_EsReset_requested.emit()
+
+    def _on_click_EStop(self):
+        self.click_EStop_requested.emit()
 
 
     def get_properties(self):

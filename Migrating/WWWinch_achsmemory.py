@@ -6,7 +6,11 @@ SHM_SIZE = 4096  # bytes
 class Achsmemory:
     def __init__(self, name, create=False, wait=False):
         if create:
-            self.shm = shared_memory.SharedMemory(name=name, create=True, size=SHM_SIZE)
+            try:
+                self.shm = shared_memory.SharedMemory(name=name, create=True, size=SHM_SIZE)
+            except FileExistsError:
+                shared_memory.SharedMemory(name=name).unlink()
+                self.shm = shared_memory.SharedMemory(name=name, create=True, size=SHM_SIZE)
         elif wait:
             self.shm = self.wait_for_shared_memory(name)
         else:

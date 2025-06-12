@@ -8,6 +8,40 @@ class SimCodec(Codec):
         self.receivedBuff = None
         self.timeOld = None
 
+        self.SetProp.Name = "SIMUL"
+        self.SetProp.GearToUI = "13.0" 
+        self.SetProp.HardMax = "299"
+        self.SetProp.UserMax = "298"
+        self.SetProp.PosOffset = "0.0"
+        self.SetProp.UserMin = "-298"
+        self.SetProp.HardMin = "-299"
+        self.SetProp.PosWin = "0.01"
+        self.SetProp.VelMaxMot = "10.5"
+        self.SetProp.VelMax = "10.5"
+        self.SetProp.AccMax = "5.5"
+        self.SetProp.DccMax = "5.4"
+        self.SetProp.AccMove = "5.5"
+        self.SetProp.MaxAmp = "150"
+        self.SetProp.VelWin = "0.01"
+        self.SetProp.FilterP = "1.0"
+        self.SetProp.FilterI = "1.0"
+        self.SetProp.FilterD = "1.0"
+        self.SetProp.FilterIL = "1.0"
+        self.SetProp.RopeSWLL = "2500.0"
+        self.SetProp.RopeDiameter = "5.0"
+        self.SetProp.RopeType = "SIMUL"
+        self.SetProp.RopeNumber = "SIMUL"
+        self.SetProp.RopeLength = "200"
+        self.SetProp.SpeedMaxForUI = "16.25"
+        self.SetProp.PosDiffForUI = "SIMUL"
+        self.SetProp.AccTot = "5.00"
+        self.SetProp.Rampform = "SIMUL"
+
+        self.GuidePitch = "-6.3"
+        self.GuidePosMax = "0.97"
+        self.GuidePosMaxMax = "0.97"
+        self.GuidePosMin = "0.01"
+
 
     def simulate(self, IntervallR):
         fa = "%3.2f"
@@ -73,12 +107,6 @@ class SimCodec(Codec):
         self.GuidePosIstUI = "0.0"
         self.GuideIstSpeedUI = "0.0"
 
-        
-        self.GuidePitch = "-6.3"
-        self.GuidePosMax = "0.97"
-        self.GuidePosMaxMax = "0.97"
-        self.GuidePosMin = "0.01"
-
         self.EStopStatus = 2048
         self.EsNetwork = True
         self.EsTaster = True
@@ -87,58 +115,87 @@ class SimCodec(Codec):
         self.EStopCutVel = 0
         self.EsEStop2 = False
 
-        self.SetProp.Name = "SIMUL"
-        self.SetProp.GearToUI = "13.0" 
-        self.SetProp.HardMax = "299"
-        self.SetProp.UserMax = "298"
-        self.SetProp.PosOffset = "0.0"
-        self.SetProp.UserMin = "-298"
-        self.SetProp.HardMin = "-299"
-        self.SetProp.PosWin = "0.01"
-        self.SetProp.VelMaxMot = "10.5"
-        self.SetProp.VelMax = "10.5"
-        self.SetProp.AccMax = "5.5"
-        self.SetProp.DccMax = "5.4"
-        self.SetProp.AccMove = "5.5"
-        self.SetProp.MaxAmp = "150"
-        self.SetProp.VelWin = "0.01"
-        self.SetProp.FilterP = "1.0"
-        self.SetProp.FilterI = "1.0"
-        self.SetProp.FilterD = "1.0"
-        self.SetProp.FilterIL = "1.0"
-        self.SetProp.RopeSWLL = "2500.0"
-        self.SetProp.RopeDiameter = "5.0"
-        self.SetProp.RopeType = "SIMUL"
-        self.SetProp.RopeNumber = "SIMUL"
-        self.SetProp.RopeLength = "200"
-        self.SetProp.SpeedMaxForUI = "16.25"
-        self.SetProp.PosDiffForUI = "SIMUL"
-        self.SetProp.AccTot = "5.00"
-        self.SetProp.Rampform = "SIMUL"
-
-
         # Set all cbEs... bits to True for simulation
         #for attr in dir(self.EStop):
         #    if attr.startswith('Es') and isinstance(getattr(self.EStop, attr), bool):
         #        setattr(self.EStop, attr, True)
 
     def step_sim(self):
+        """
+        Simulate one backend cycle. Responds to GUI commands via ActProp.Modus.
+        """
+
         time_now = time.perf_counter()
         if self.timeOld is None:
             self.timeOld = time_now
         IntervallR = time_now - self.timeOld
         self.timeOld = time_now
         self.simulate(IntervallR)
-        self.receivedBuff = self.pack(self.__dict__)
-        return self.receivedBuff
 
-    #def unpack(self, data):
-        # Always persist SetProp.Name across cycles
-        #super().unpack(data)
-        #if hasattr(self, 'SetProp') and hasattr(self.SetProp, 'Name'):
-         #   if self.SetProp.Name:
-        #        self._last_axis_name = self.SetProp.Name
-        #    elif self._last_axis_name:
-        #        self.SetProp.Name = self._last_axis_name
-        #print(f"[SimCodec] unpack: SetProp.Name={getattr(self.SetProp, 'Name', None)} _last_axis_name={getattr(self, '_last_axis_name', None)}")
-        #return data
+        mode = getattr(self.ActProp, "Modus", "r").lower()
+
+        if mode == "w":
+            self.apply_config_from_setprop()
+
+        self.sperre = False if mode == "e" else True
+
+        # Construct reply using updated ActProp
+        self.receivedBuff = self.pack(self.to_dict({}))
+        return self.receivedBuff
+    
+    def apply_config_from_setprop(self):
+        """
+        Apply SetProp to ActProp, and Guide.SetProp to Guide.ActProp,
+        while respecting legacy field structure and avoiding overwrite
+        of simulation-controlled fields like AccMax and DccMax.
+        """
+        pass
+
+
+    def unpack(self, props: dict):
+        """
+        Load incoming values (e.g. from shared memory) into internal state.
+        """
+        if not props:
+            return
+
+        for key in ['SetProp', 'ActProp', 'EStop']:
+            if key in props:
+                source = props[key]
+                target = getattr(self, key, None)
+                if target:
+                    for k, v in source.items():
+                        if hasattr(target, k):
+                            setattr(target, k, v)
+
+        # Handle nested Guide separately
+        if "Guide" in props:
+            guide_props = props["Guide"]
+            for subkey in ["SetProp", "ActProp"]:
+                if subkey in guide_props:
+                    source = guide_props[subkey]
+                    target = getattr(self.Guide, subkey, None)
+                    if target:
+                        for k, v in source.items():
+                            if hasattr(target, k):
+                                setattr(target, k, v)
+
+    def to_dict(self, data=None):
+        """
+        Convert internal codec state into a dictionary for shared memory push.
+        Mirrors the structure used in Controller <-> Backend communication.
+        """
+        def obj_to_dict(obj):
+            return {k: getattr(obj, k) for k in dir(obj)
+                    if not k.startswith("_") and not callable(getattr(obj, k))}
+
+        return {
+            "ActProp": obj_to_dict(self.ActProp),
+            "SetProp": obj_to_dict(self.SetProp),
+            "EStop":   obj_to_dict(self.EStop),
+            "Guide": {
+                "ActProp": obj_to_dict(self.Guide.ActProp),
+                "SetProp": obj_to_dict(self.Guide.SetProp),
+            }
+        }
+

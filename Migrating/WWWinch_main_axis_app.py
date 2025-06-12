@@ -46,6 +46,8 @@ def main():
 
     app = QApplication(sys.argv)
 
+    controler = None
+
     # --- Launch UI ---
     try:
         time.sleep(0.2)  # Let backend init shared memory
@@ -61,6 +63,8 @@ def main():
 
     finally:
         shutdown_backend()
+        if controller is not None:
+            controller.shutdown()  # ← this ensures shm is cleaned
 
     sys.exit(exit_code)
 

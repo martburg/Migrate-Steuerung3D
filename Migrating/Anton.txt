@@ -1,0 +1,354 @@
+IF bCloseAll THEN (*On PLC reset or program download close all old connections *)
+	bCloseAll := FALSE;
+	fbSocketCloseAll( sSrvNetId:= g_sTcIpConnSvrAddr, bExecute:= TRUE, tTimeout:= T#10s );
+ELSE
+	fbSocketCloseAll( bExecute:= FALSE );
+END_IF
+IF fbSocketCloseAll.bError THEN
+	LogError( 'FB_SocketCloseALL (UDP)', fbSocketCloseAll.nErrId );
+				nErrIdA := fbSocketCloseAll.nErrId;
+END_IF
+
+IF NOT fbSocketCloseAll.bBusy AND NOT fbSocketCloseAll.bError THEN
+	fbPeerToPeer1( sendFifo := sendFifo1, receiveFifo := receiveFifo1, sLocalHost := LOCAL_HOST_IP, nLocalPort := LOCAL_HOST_PORT1, bEnable := TRUE );
+	(* Try Second Socket End*)
+
+	REPEAT
+		receiveFifo1.RemoveHead( old => entryReceivedFrom1 );
+		IF receiveFifo1.bOk THEN
+			DownMessage1 := '';
+			iDownDaten:=0;
+			PtDaten := ADR(entryReceivedFrom1.msg);
+			WHILE iDownDaten < SIZEOF(entryReceivedFrom1.msg) AND PtDaten^ <> 0 DO
+				DownMessage1:=CONCAT(DownMessage1,CHR(PtDaten^));
+				iDownDaten:=iDownDaten+1;
+				PtDaten := ADR(entryReceivedFrom1.msg)+iDownDaten;
+			END_WHILE
+			LifetickUIrx := STRING_TO_WORD(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			LifetickDiff1 := LifetickUItx-LifetickUIrx;
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			Modus       := (LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			OwnPID := (LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			IF Intent = 'True' THEN
+				ControlPID := OwnPID;
+			END_IF
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			ControlPIDTx 	:= STRING_TO_UINT(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			Intent := (LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			ControlIN 		:= STRING_TO_UINT(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			PControlIN		:= ControlIN;
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			GuideControlUI:= STRING_TO_UINT(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			GuideControl := GuideControlUI;
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			SpeedSollIN:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));(*auf UI Seite SpeedSoll*)
+			PSpeedSollIN	:= SpeedSollIN;
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			GuideSollSpeedUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			PGuideSollSpeedUI := GuideSollSpeedUI;
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			PosSoll:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			PPosSoll:=PosSoll;
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			EStopReset:= STRING_TO_DWORD(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			PEStopReset:= EStopReset;
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			ReSync := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+			GUINotHaltIN := STRING_TO_INT(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+			IF Modus = 'w' THEN
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));(*auf UI Seite AccMax*)
+				AccIN       := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PAccIn := AccIN;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));(*auf UI Seite AccMax*)
+				DccIN       := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PDccIN :=DccIn;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				PosMaxHardUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PPosMaxHardUI:=PosMaxHardUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				PosMaxUserUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PPosMaxUserUI:=PosMaxUserUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				PosMinUserUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PPosMinUserUI:=PosMinUserUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				PosMinHardUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PPosMinHardUI:=PosMinHardUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				SpeedMaxUI  := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PSpeedMaxUI := SpeedMaxUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				AccMaxUI    := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PAccMaxUI	:= AccMaxUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				DccMaxUI    := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PDccMaxUI	:= DccMaxUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				AmpMaxUI    := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PAmpMaxUI	:= AmpMaxUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				FilterP  	:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PFilterP	:= FilterP;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				FilterI  	:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PFilterI	:= FilterI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				FilterD     := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PFilterD	:= FilterD;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				FilterIL    := STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PFilterIL	:= FilterIL;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				GuidePitchUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PGuidePitchUI:=GuidePitchUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				GuidePosMaxUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PGuidePosMaxUI:=GuidePosMaxUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				GuidePosMinUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PGuidePosMinUI:= GuidePosMinUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				VelOrPos:= (LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				PosWinUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PPosWinUI:=PosWinUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				VelWinUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PVelWinUI:= VelWinUI;
+				DownMessage1 := RIGHT(DownMessage1,LEN(DownMessage1)-FIND(DownMessage1,';'));
+				AccTotUI:= STRING_TO_REAL(LEFT(DownMessage1,FIND(DownMessage1,';')-1));
+				PAccTotUI:=AccTotUI;
+			END_IF
+		END_IF
+	UNTIL NOT receiveFifo1.bOk
+	END_REPEAT
+
+
+	UpMessage:= '';
+	UpMessage:= CONCAT(UpMessage,OwnPID); (*FAKE Controling PID *)			(*0  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,REAL_TO_STRING (LifetickUItx));			(*1  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,WORD_TO_STRING (Status));					(*2  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,WORD_TO_STRING (GuideStatus)); 			(*3  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (PosIst,5,TRUE)); 					(*4  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (SpeedIstUI,5,TRUE)); 				(*5  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (MasterMomentUI,5,TRUE)); 	(*6  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (CabTemperatureUI,1,TRUE));(*7  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,Name);										(*8  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (GearToUI,3,TRUE)); 		(*9  *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR(PosMaxHardUI,3,TRUE)); 			(*10 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (PosMaxUserUI,3,TRUE)); 	(*11 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (PosMinUserUI,3,TRUE)); 	(*12 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (PosMinHardUI,3,TRUE)); 	(*13 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (SpeedMaxUI,2,TRUE)); 		(*14 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (AccMaxUI,2,TRUE)); 		(*15 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (DccMaxUI,2,TRUE)); 		(*16 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (AmpMaxUI,2,TRUE)); 		(*17 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (FilterP,6,TRUE)); 		(*18 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (FilterI,6,TRUE)); 		(*19 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (FilterD,6,TRUE)); 		(*20 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (FilterIL,6,TRUE)); 		(*21 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (RopeSWLL,1,TRUE)); 		(*22 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (RopeDiameter,1,TRUE)); 	(*23 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,RopeType); 								(*24 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,RopeNumber); 								(*25 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (RopeLength,2,TRUE)); 		(*26 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (GuidePitchUI,1,TRUE)); 	(*27 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (GuidePosMaxUI,4,TRUE)); 	(*28 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (GuidePosMinUI,4,TRUE)); 	(*29 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (GuidePosIstUI,4,TRUE));		 	(*30 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (GuideIstSpeedUI,2,TRUE));			(*31 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (MotAuslastUI,1,TRUE));	(*32 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (ActCurUI,1,TRUE));		(*33 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (SpeedMaxforUI,2,TRUE));	(*34 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,LREAL_TO_FMTSTR (PosDiffForUI,5,TRUE));	(*35 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,DWORD_TO_STRING (RampenformUI));			(*36 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,DWORD_TO_STRING (EStopStatus));			(*37 *)
+	UpMessage:= CONCAT(UpMessage,';');
+	UpMessage:= CONCAT(UpMessage,'EOD\');
+	UpMessage:= CONCAT(UpMessage,';');
+
+	StrOffset:=0;
+	iDatenArray:=0;
+	PtDaten := ADR(UpMessage);
+	WHILE (PtDaten^<>92 AND PtDaten^<> 0) DO
+		PtDaten := ADR(UpMessage)+StrOffset;
+		StrOffset := StrOffset + 1;
+		DatenArray[iDatenArray]:= PtDaten^;
+		iDatenArray:=iDatenArray+1;
+	END_WHILE
+	DatenArray[iDatenArray]:= 59;
+	iDatenArray:=iDatenArray+1;
+
+	IF EStopTwinSAFE AND ReSync = 1 THEN
+		EStoped := FALSE;
+	END_IF
+	IF NOT EStopTwinSAFE THEN
+		EStoped := TRUE;
+	END_IF
+
+	fbTime();
+	fbTimeFrederik(sNetID:= AmsIDFrederik);
+
+	IF EStopTwinSAFE AND NOT EStoped THEN
+		IF fbTimeFrederik.bValid THEN
+			SystemTime :='N_';
+			SystemTime :=CONCAT(SystemTime,SYSTEMTIME_TO_STRING( fbTimeFrederik.systemTime )) ;
+		ELSE
+			SystemTime :='L_';
+			SystemTime :=CONCAT(SystemTime,SYSTEMTIME_TO_STRING(fbTime.systemTime ));
+		END_IF
+		sCutPos := LREAL_TO_FMTSTR (PosIst,5,TRUE);
+		sCutVel := LREAL_TO_FMTSTR (SpeedIstUI,5,TRUE);
+	END_IF
+
+	StrOffset:=0;
+	PtDaten := ADR(SystemTime);
+	WHILE (StrOffset  < LEN(SystemTime)+1) DO
+		PtDaten := ADR(SystemTime)+StrOffset;
+		StrOffset := StrOffset + 1;
+		DatenArray[iDatenArray]:= PtDaten^;
+		iDatenArray:=iDatenArray+1;
+	END_WHILE
+	DatenArray[iDatenArray-1]:= 59;
+
+	StrOffset:=0;
+	PtDaten := ADR(sCutPos);
+	WHILE (StrOffset < LEN(sCutPos) AND PtDaten^ <> 0) DO
+		PtDaten := ADR(sCutPos)+StrOffset;
+		StrOffset := StrOffset + 1;
+		DatenArray[iDatenArray]:= PtDaten^;
+		iDatenArray:=iDatenArray+1;
+	END_WHILE
+	DatenArray[iDatenArray-1]:= 59;
+
+
+	StrOffset:=0;
+	PtDaten := ADR(sCutVel);
+	WHILE (StrOffset < LEN(sCutVel) AND PtDaten^ <> 0) DO
+		PtDaten := ADR(sCutVel)+StrOffset;
+		StrOffset := StrOffset + 1;
+		DatenArray[iDatenArray]:= PtDaten^;
+		iDatenArray:=iDatenArray+1;
+	END_WHILE
+	DatenArray[iDatenArray-1]:= 59;
+
+	sPosWinUI := LREAL_TO_FMTSTR (PosWinUI,5,TRUE);
+	sVelWinUI := LREAL_TO_FMTSTR (VelWinUI,5,TRUE);
+	sAccTotUI := LREAL_TO_FMTSTR (AccTotUI,3,TRUE);
+	sGuidePosManualMaxUI := LREAL_TO_FMTSTR (GuidePosManualMaxUI,3,TRUE);
+
+	StrOffset:=0;
+	PtDaten := ADR(sPosWinUI);
+	WHILE (StrOffset < LEN(sPosWinUI) AND PtDaten^ <> 0) DO
+		PtDaten := ADR(sPosWinUI)+StrOffset;
+		StrOffset := StrOffset + 1;
+		DatenArray[iDatenArray]:= PtDaten^;
+		iDatenArray:=iDatenArray+1;
+	END_WHILE
+	DatenArray[iDatenArray-1]:= 59;
+
+	StrOffset:=0;
+	PtDaten := ADR(sVelWinUI);
+	WHILE (StrOffset < LEN(sVelWinUI) AND PtDaten^ <> 0) DO
+		PtDaten := ADR(sVelWinUI)+StrOffset;
+		StrOffset := StrOffset + 1;
+		DatenArray[iDatenArray]:= PtDaten^;
+		iDatenArray:=iDatenArray+1;
+	END_WHILE
+	DatenArray[iDatenArray-1]:= 59;
+
+	StrOffset:=0;
+	PtDaten := ADR(sAccTotUI);
+	WHILE (StrOffset < LEN(sAccTotUI) AND PtDaten^ <> 0) DO
+		PtDaten := ADR(sAccTotUI)+StrOffset;
+		StrOffset := StrOffset + 1;
+		DatenArray[iDatenArray]:= PtDaten^;
+		iDatenArray:=iDatenArray+1;
+	END_WHILE
+	DatenArray[iDatenArray-1]:= 59;
+
+	StrOffset:=0;
+	PtDaten := ADR(sGuidePosManualMaxUI);
+	WHILE (StrOffset < LEN(sGuidePosManualMaxUI) AND PtDaten^ <> 0) DO
+		PtDaten := ADR(sGuidePosManualMaxUI)+StrOffset;
+		StrOffset := StrOffset + 1;
+		DatenArray[iDatenArray]:= PtDaten^;
+		iDatenArray:=iDatenArray+1;
+	END_WHILE
+	DatenArray[iDatenArray-1]:= 59;
+
+
+
+
+
+	sendToEntry1.nRemotePort 		:= REMOTE_HOST_PORT1;			(* remote host port number*)
+	sendToEntry1.sRemoteHost 		:= REMOTE_HOST_IP;				(* remote host IP address *)
+	sendToEntry1.msg				:= DatenArray;
+	IF sendFifo1.nCount < 4 THEN
+		sendFifo1.AddTail( new := sendToEntry1 );
+		IF NOT sendFifo1.bOk THEN												(* check for fifo overflow*)
+			LogError( 'Send fifo1 overflow!', PLCPRJ_ERROR_SENDFIFO_OVERFLOW );
+		END_IF
+	END_IF
+END_IF
+IF PeriodicSelfCheck = TRUE THEN
+	PeriodicSelfCheck := FALSE;
+ELSE
+	PeriodicSelfCheck := TRUE;
+END_IF
+IF Modus = 'E' THEN
+	SPS0Sperre := FALSE;
+ELSE
+	SPS0Sperre := TRUE;
+END_IF
+IF LifetickDiff > 500 THEN
+	OwnPID := '0000';
+	ControlPID := '0000';
+	Intent := 'False';
+END_IF
+
+IF GUINotHaltIN = 1 THEN
+	GUINotHaltOUT :=TRUE;
+	PGUINotHaltOUT := TRUE;
+END_IF

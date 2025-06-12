@@ -19,8 +19,8 @@ class Controller:
     def __init__(self, ui):
         self.ui = ui  # Reference to the UI widget (AchseWidget)
 
-        self.shm_in  = Achsmemory(MEM_NAME_GUI2HW, create=True)
-        self.shm_out = Achsmemory(MEM_NAME_HW2GUI, create=True)
+        self.GUI2HW  = Achsmemory(MEM_NAME_GUI2HW, create=True)
+        self.HW2GUI = Achsmemory(MEM_NAME_HW2GUI, create=True)
 
         self.Controler_Codec = None  # Defer instantiation
         self.input_manager = InputManager()
@@ -36,9 +36,12 @@ class Controller:
         self.ui.edit_setGuideProps_requested.connect(self.handle_edit_GuideProps)
         self.ui.edit_cancel_requested.connect(self.handle_cancel_edit)
         self.ui.edit_commit_requested.connect(self.handle_commit_edit)
+        self.ui.click_EsReset_requested.connect(self.handle_click_EsReset)
+        self.ui.click_EStop_requested.connect(self.handle_click_EStop)
 
         self._selected_axis_name = None
         self._prev_state = None
+        self._write_countdown = 0
 
     def ensure_codec(self, axis_name):
         if axis_name == 'SIMUL':
@@ -94,6 +97,9 @@ class Controller:
         self._prev_state = current_state
 
         print(f"[Controller] Step {self.step_count}: AxisName={axis_name}, State={current_state}")
+
+        # Step 5.5: Reset Modus if needed
+        self._handle_write_countdown()        
 
         # Step 6: Push updated properties to backend
         self.set_props(self.Controler_Codec.to_dict({}))
@@ -208,7 +214,7 @@ class Controller:
         self.Controler_Codec.SetProp.Name = axis_name
 
         self.restart_backend(axis_name)
-        self.shm_out.write(self.Controler_Codec.to_dict({}))
+        self.HW2GUI.write(self.Controler_Codec.to_dict({}))
 
     def handle_edit_PosProps(self):
         """Handler for entering edit_SetProps state when edit buttons are pressed."""
@@ -362,15 +368,24 @@ class Controller:
                 widget = getattr(ui, widget_name, None)
                 if not widget:
                     continue
-                value = widget.text()
+                text = widget.text()
                 target = self.Controler_Codec
                 for part in path_root.split("."):
                     target = getattr(target, part)
-                setattr(target, attr, value)
 
+                # Coerce to type of existing attribute if possible
+                try:
+                    old_val = getattr(target, attr)
+                    new_val = type(old_val)(text)
+                except Exception:
+                    new_val = text  # fallback to raw string
+
+                setattr(target, attr, new_val)
 
             # 2. Push props
+            self.Controler_Codec.ActProp.Modus = "w"
             self.set_props(self.Controler_Codec.to_dict({}))
+            self._write_countdown = 2
 
             # 3. Finish edit
             print("[Controller] Comited — attempting to return to INIT via finish_edit.")
@@ -385,18 +400,36 @@ class Controller:
                 if widget:
                     widget.setEnabled(False)
 
-            for btn in [f"btn{group}Write", f"btn{group}Cancel", f"btn{group}Edit"]:
-                if hasattr(ui, btn):
-                    getattr(ui, btn).setEnabled(btn.endswith("Edit"))
+            # 2. Enable all Edit buttons (across all groups)
+            for suffix in ["Pos", "Vel", "Filter", "Guide"]:
+                edit_btn = f"btn{suffix}Edit"
+                if hasattr(ui, edit_btn):
+                    getattr(ui, edit_btn).setEnabled(True)
+
+            # 3. Disable all Write/Cancel buttons (across all groups)
+            for suffix in ["Pos", "Vel", "Filter", "Guide"]:
+                for kind in ["Write", "Cancel"]:
+                    btn = f"btn{suffix}{kind}"
+                    if hasattr(ui, btn):
+                        getattr(ui, btn).setEnabled(False)
 
             if hasattr(ui, "cmbAxisName"):
                 ui.cmbAxisName.setEnabled(True)
+
+            if hasattr(ui, "btnEsReset"):
+                ui.btnEsReset.setEnabled(True)
 
             self._prev_state = self.state_machine.state
             print(f"[Controller] Finished editing {group}.")
 
         except Exception as e:
             print(f"[Controller] Error during write for {group}: {e}")
+
+    def handle_click_EsReset(self):
+        self.set_all_estop_flags(True)
+
+    def handle_click_EStop(self):
+        self.set_all_estop_flags(False)
 
     def to_e_PosProps(self):
         """Transition to edit position properties state."""
@@ -602,6 +635,17 @@ class Controller:
             else:
                 print(f"[Controller] Warning: Cannot restore {key} on {target_obj}")
 
+    def _handle_write_countdown(self):
+        """
+        Decrement and clear ActProp.Modus after a write commit ('w').
+        Called during update before pushing props to backend.
+        """
+        if self._write_countdown > 0:
+            self._write_countdown -= 1
+            if self._write_countdown == 0:
+                self.Controler_Codec.ActProp.Modus = "r"
+                print("[Controller] Reset Modus to 'r' after write commit")
+
     def update_ui(self):
         """Push all bound data to the UI widgets."""
         for name, (widget_type, path, fmt) in self.ui._bindings.items():
@@ -646,6 +690,16 @@ class Controller:
         for attr in path.split("."):
             root = getattr(root, attr)
         return root
+
+    def set_all_estop_flags(self, value: bool):
+        if not self.Controler_Codec:
+            return
+        for attr in dir(self.Controler_Codec.EStop):
+            if attr.startswith("Es") and isinstance(getattr(self.Controler_Codec.EStop, attr), bool):
+                setattr(self.Controler_Codec.EStop, attr, value)
+
+        # Push updated EStop state to backend
+        self.set_props(self.Controler_Codec.to_dict({}))
 
     def start_backend(self, axis_name: str):
         """Launch a new backend process for the specified axis."""
@@ -694,14 +748,14 @@ class Controller:
     def shutdown(self):
         """Gracefully shutdown the controller."""
         self.stop()
-        self.shm_in.close()
-        self.shm_out.close()
-        self.shm_in.unlink()
-        self.shm_out.unlink()
+        self.GUI2HW.close()
+        self.HW2GUI.close()
+        self.GUI2HW.unlink()
+        self.HW2GUI.unlink()
         print("[Controller] Shutdown complete.")
 
     def set_props(self, props: dict):
-        self.shm_in.write(props)
+        self.GUI2HW.write(props)
 
     def get_props(self) -> dict:
-        return self.shm_out.read()
+        return self.HW2GUI.read()
