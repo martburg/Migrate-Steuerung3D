@@ -15,6 +15,9 @@ class Widget(QWidget):
     edit_setPosProps_requested    = Signal()  # Signal for edit Pos state
     edit_setVelProps_requested    = Signal()  # Signal for edit Vel state
     edit_setFilterProps_requested = Signal()  # Signal for edit Filter state
+    edit_setGuideProps_requested  = Signal()   # Signal for edit Guide state
+    edit_cancel_requested         = Signal(str)  # Signal will carry group name: "Pos", "Vel", "Filter", "Guide"
+    edit_commit_requested         = Signal(str)  # Signal to commit changes, will carry group name: "Pos", "Vel", "Filter", "Guide"
 
     def __init__(self):
         super().__init__()
@@ -118,7 +121,16 @@ class Widget(QWidget):
         self.ui.btnPosEdit.clicked.connect(self._on_click_PosEdit)
         self.ui.btnVelEdit.clicked.connect(self._on_click_VelEdit)
         self.ui.btnFilterEdit.clicked.connect(self._on_click_FilterEdit)
-        
+        self.ui.btnGuideEdit.clicked.connect(self.edit_setGuideProps_requested.emit)
+        self.ui.btnPosCancel.clicked.connect(lambda: self.edit_cancel_requested.emit("Pos"))
+        self.ui.btnVelCancel.clicked.connect(lambda: self.edit_cancel_requested.emit("Vel"))
+        self.ui.btnFilterCancel.clicked.connect(lambda: self.edit_cancel_requested.emit("Filter"))
+        self.ui.btnGuideCancel.clicked.connect(lambda: self.edit_cancel_requested.emit("Guide"))
+        self.ui.btnPosWrite.clicked.connect(lambda: self.edit_commit_requested.emit("Pos"))
+        self.ui.btnVelWrite.clicked.connect(lambda: self.edit_commit_requested.emit("Vel"))
+        self.ui.btnFilterWrite.clicked.connect(lambda: self.edit_commit_requested.emit("Filter"))
+        self.ui.btnGuideWrite.clicked.connect(lambda: self.edit_commit_requested.emit("Guide"))
+            
 
     def _load_ui(self):
         loader = QUiLoader()
@@ -146,6 +158,9 @@ class Widget(QWidget):
 
     def _on_click_FilterEdit(self):
         self.edit_setFilterProps_requested.emit()
+
+    def _on_click_GuideEdit(self):
+        self.edit_setGuideProps_requested.emit()
 
     def _on_axis_select(self, index):
         axis_name = self.ui.cmbAxisName.itemText(index)

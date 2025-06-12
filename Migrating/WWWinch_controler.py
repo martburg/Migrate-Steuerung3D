@@ -33,6 +33,9 @@ class Controller:
         self.ui.edit_setPosProps_requested.connect(self.handle_edit_PosProps)
         self.ui.edit_setVelProps_requested.connect(self.handle_edit_VelProps)
         self.ui.edit_setFilterProps_requested.connect(self.handle_edit_FilterProps)
+        self.ui.edit_setGuideProps_requested.connect(self.handle_edit_GuideProps)
+        self.ui.edit_cancel_requested.connect(self.handle_cancel_edit)
+        self.ui.edit_commit_requested.connect(self.handle_commit_edit)
 
         self._selected_axis_name = None
         self._prev_state = None
@@ -139,6 +142,11 @@ class Controller:
                 self.to_e_FilterProps()
             case "edit_FilterProps":
                 print("[Controller] Editing filter properties...")
+            case "to_e_GuideProps":
+                print("[Controller] Preparing to enter edit_GuideProps...")
+                self.to_e_GuideProps()
+            case "edit_GuideProps":
+                print("[Controller] Editing guider properties...")
             case _:
                 print(f"[Controller] Entering {state}: no specific handler.")
 
@@ -216,7 +224,7 @@ class Controller:
         print("[Controller] Edit VelProps requested: entering to_e_VelProps state.")
         if hasattr(self.state_machine, 't_e_VelProps'):
             print("[Controller] Attempting to trigger init -> to_e_VelProps ")
-            self.state_machine.t_edit_VelProps()
+            self.state_machine.t_e_VelProps()
         else:
             print("[Controller] State machine does not support t_edit_VelProps transition.")
 
@@ -228,6 +236,167 @@ class Controller:
             self.state_machine.t_e_FilterProps()
         else:
             print("[Controller] State machine does not support t_e_FilterProps transition.")
+
+    def handle_edit_GuideProps(self):
+        print("[Controller] Edit GuideProps requested: entering to_e_GuideProps state.")
+        if hasattr(self.state_machine, 't_e_GuideProps'):
+            self.state_machine.t_e_GuideProps()
+        else:
+            print("[Controller] State machine does not support t_e_GuideProps transition.")
+
+    def handle_cancel_edit(self, group):
+        print(f"[Controller] Cancel requested for {group} properties.")
+        try:
+            if group == "Pos":
+                self.restore_backup(self._Pos_backup, self.Controler_Codec.SetProp)
+            elif group == "Vel":
+                self.restore_backup(self._Pos_backup, self.Controler_Codec.SetProp)
+            elif group == "Filter":
+                self.restore_backup(self._filter_backup, self.Controler_Codec.SetProp)
+            elif group == "Guide":
+                self.restore_backup(self._guide_backup, self.Controler_Codec.Guide.SetProp)
+            else:
+                print(f"[Controller] Unknown cancel group: {group}")
+                return
+
+            self.set_props(self.Controler_Codec.to_dict({}))
+
+            print("[Controller] Cancelled edit — attempting to return to INIT via finish_edit.")
+            if hasattr(self.state_machine, "t_finish_edit"):
+                self.state_machine.t_finish_edit()
+            else:
+                print("[Controller] Warning: finish_edit transition not available")
+
+            self._prev_state = self.state_machine.state
+            self.ui_enable_edits()
+
+            ui = self.ui.ui
+
+            if group == "Pos":
+                for name in ["txtHardMax", "txtUserMax", "txtPosOffset", "txtUserMin", "txtHardMin", "txtPosWin"]:
+                    widget = getattr(ui, name, None)
+                    if widget: widget.setEnabled(False)
+                for name in ["btnPosWrite", "btnPosCancel"]:
+                    btn = getattr(ui, name, None)
+                    if btn: btn.setEnabled(False)
+                if hasattr(ui, "btnPosEdit"):
+                    ui.btnPosEdit.setEnabled(True)
+
+            elif group == "Vel":
+                for name in ["txtVelMax", "txtAccMax", "txtDccMax", "txtAccMove", "txtMaxAmp", "txtVelWin"]:
+                    widget = getattr(ui, name, None)
+                    if widget: widget.setEnabled(False)
+                for name in ["btnVelWrite", "btnVelCancel"]:
+                    btn = getattr(ui, name, None)
+                    if btn: btn.setEnabled(False)
+                if hasattr(ui, "btnVelEdit"):
+                    ui.btnVelEdit.setEnabled(True)
+
+            elif group == "Filter":
+                for name in ["txtFilterP", "txtFilterI", "txtFilterD", "txtFilterIL"]:
+                    widget = getattr(ui, name, None)
+                    if widget: widget.setEnabled(False)
+                for name in ["btnFilterWrite", "btnFilterCancel"]:
+                    btn = getattr(ui, name, None)
+                    if btn: btn.setEnabled(False)
+                if hasattr(ui, "btnFilterEdit"):
+                    ui.btnFilterEdit.setEnabled(True)
+
+            elif group == "Guide":
+                for name in ["txtGuidePitch", "txtGuidePosMax", "txtGuidePosMaxMax", "txtGuidePosMin"]:
+                    widget = getattr(ui, name, None)
+                    if widget: widget.setEnabled(False)
+                for name in ["btnGuideWrite", "btnGuideCancel"]:
+                    btn = getattr(ui, name, None)
+                    if btn: btn.setEnabled(False)
+                if hasattr(ui, "btnGuideEdit"):
+                    ui.btnGuideEdit.setEnabled(True)
+
+
+        except Exception as e:
+            print(f"[Controller] Error during cancel for {group}: {e}")
+
+    def handle_commit_edit(self, group):
+        print(f"[Controller] Write requested for {group} properties.")
+        try:
+            ui = self.ui.ui
+
+            if group == "Pos":
+                bindings = {
+                    "txtHardMax":  ("SetProp", "HardMax"),
+                    "txtUserMax":  ("SetProp", "UserMax"),
+                    "txtPosOffset":("SetProp", "PosOffset"),
+                    "txtUserMin":  ("SetProp", "UserMin"),
+                    "txtHardMin":  ("SetProp", "HardMin"),
+                    "txtPosWin":   ("SetProp", "PosWin"),
+                }
+            elif group == "Vel":
+                bindings = {
+                    "txtVelMax":   ("SetProp", "VelMax"),
+                    "txtAccMax":   ("SetProp", "AccMax"),
+                    "txtDccMax":   ("SetProp", "DccMax"),
+                    "txtAccMove":  ("SetProp", "AccMove"),
+                    "txtMaxAmp":   ("SetProp", "MaxAmp"),
+                    "txtVelWin":   ("SetProp", "VelWin"),
+                }
+            elif group == "Filter":
+                bindings = {
+                    "txtFilterP":  ("SetProp", "FilterP"),
+                    "txtFilterI":  ("SetProp", "FilterI"),
+                    "txtFilterD":  ("SetProp", "FilterD"),
+                    "txtFilterIL": ("SetProp", "FilterIL"),
+                }
+            elif group == "Guide":
+                bindings = {
+                    "txtGuidePitch":     ("Guide.SetProp", "GuidePitch"),
+                    "txtGuidePosMax":    ("Guide.SetProp", "GuidePosMax"),
+                    "txtGuidePosMaxMax": ("Guide.SetProp", "GuidePosMaxMax"),
+                    "txtGuidePosMin":    ("Guide.SetProp", "GuidePosMin"),
+                }
+            else:
+                print(f"[Controller] Unknown write group: {group}")
+                return
+
+            # 1. Apply UI values to Codec
+            for widget_name, (path_root, attr) in bindings.items():
+                widget = getattr(ui, widget_name, None)
+                if not widget:
+                    continue
+                value = widget.text()
+                target = self.Controler_Codec
+                for part in path_root.split("."):
+                    target = getattr(target, part)
+                setattr(target, attr, value)
+
+
+            # 2. Push props
+            self.set_props(self.Controler_Codec.to_dict({}))
+
+            # 3. Finish edit
+            print("[Controller] Comited — attempting to return to INIT via finish_edit.")
+            if hasattr(self.state_machine, "t_finish_edit"):
+                self.state_machine.t_finish_edit()
+            else:
+                print("[Controller] Warning: finish_edit transition not available")
+
+            # 4. Disable edit mode for group
+            for widget_name, _ in bindings.items():
+                widget = getattr(ui, widget_name, None)
+                if widget:
+                    widget.setEnabled(False)
+
+            for btn in [f"btn{group}Write", f"btn{group}Cancel", f"btn{group}Edit"]:
+                if hasattr(ui, btn):
+                    getattr(ui, btn).setEnabled(btn.endswith("Edit"))
+
+            if hasattr(ui, "cmbAxisName"):
+                ui.cmbAxisName.setEnabled(True)
+
+            self._prev_state = self.state_machine.state
+            print(f"[Controller] Finished editing {group}.")
+
+        except Exception as e:
+            print(f"[Controller] Error during write for {group}: {e}")
 
     def to_e_PosProps(self):
         """Transition to edit position properties state."""
@@ -246,6 +415,22 @@ class Controller:
                 if btn:
                     btn.setEnabled(True)
 
+            # Disable reset button if it exists
+            if hasattr(ui, 'btnEsReset'):
+                ui.btnEsReset.setEnabled(False)
+            # Disable edit buttons
+            if hasattr(ui, 'btnPosEdit'):
+                ui.btnPosEdit.setEnabled(False)
+            if hasattr(ui, 'btnVelEdit'):
+                ui.btnVelEdit.setEnabled(False)
+            if hasattr(ui, 'btnGuideEdit'):
+                ui.btnGuideEdit.setEnabled(False)   
+            if hasattr(ui, 'btnFilterEdit'):
+                ui.btnFilterEdit.setEnabled(False)
+            # Disable axis selection combo box if it exists
+            if hasattr(ui, 'cmbAxisName'):
+                ui.cmbAxisName.setEnabled(False)
+    
             # Store local copy of values in controller
             self._Pos_backup = {
                 "HardMax": self.Controler_Codec.SetProp.HardMax,
@@ -266,7 +451,6 @@ class Controller:
         except Exception as e:
             print(f"[Controller] Error in t_e_PosProps: {e}")
         # set Controls in Position edit mode
-        
 
     def to_e_VelProps(self):
         """Transition to edit velocity properties state."""
@@ -284,6 +468,22 @@ class Controller:
                 btn = getattr(ui, btn_name, None)
                 if btn:
                     btn.setEnabled(True)
+
+            # Disable reset button if it exists
+            if hasattr(ui, 'btnEsReset'):
+                ui.btnEsReset.setEnabled(False)
+            # Disable edit buttons
+            if hasattr(ui, 'btnPosEdit'):
+                ui.btnPosEdit.setEnabled(False)
+            if hasattr(ui, 'btnVelEdit'):
+                ui.btnVelEdit.setEnabled(False)
+            if hasattr(ui, 'btnGuideEdit'):
+                ui.btnGuideEdit.setEnabled(False)   
+            if hasattr(ui, 'btnFilterEdit'):
+                ui.btnFilterEdit.setEnabled(False)
+            # Disable axis selection combo box if it exists
+            if hasattr(ui, 'cmbAxisName'):
+                ui.cmbAxisName.setEnabled(False)
 
             # Store local copy of values in controller
             self._Pos_backup = {
@@ -324,6 +524,22 @@ class Controller:
                 if btn:
                     btn.setEnabled(True)
 
+            # Disable reset button if it exists
+            if hasattr(ui, 'btnEsReset'):
+                ui.btnEsReset.setEnabled(False)
+            # Disable edit buttons
+            if hasattr(ui, 'btnPosEdit'):
+                ui.btnPosEdit.setEnabled(False)
+            if hasattr(ui, 'btnVelEdit'):
+                ui.btnVelEdit.setEnabled(False)
+            if hasattr(ui, 'btnGuideEdit'):
+                ui.btnGuideEdit.setEnabled(False)   
+            if hasattr(ui, 'btnFilterEdit'):
+                ui.btnFilterEdit.setEnabled(False)
+            # Disable axis selection combo box if it exists
+            if hasattr(ui, 'cmbAxisName'):
+                ui.cmbAxisName.setEnabled(False)
+
             # Store local copy of values in controller
             self._filter_backup = {
                 "FilterP": self.Controler_Codec.SetProp.FilterP,
@@ -342,6 +558,50 @@ class Controller:
         except Exception as e:
             print(f"[Controller] Error in t_e_FilterProps: {e}")
 
+    def to_e_GuideProps(self):
+        print("[Controller] Transitioning to edit_GuideProps state.")
+        ui = self.ui.ui
+        try:
+            for name in ["txtGuidePitch", "txtGuidePosMax", "txtGuidePosMaxMax", "txtGuidePosMin"]:
+                widget = getattr(ui, name, None)
+                if widget:
+                    widget.setEnabled(True)
+
+            for btn_name in ["btnGuideWrite", "btnGuideCancel"]:
+                btn = getattr(ui, btn_name, None)
+                if btn:
+                    btn.setEnabled(True)
+
+            if hasattr(ui, 'btnEsReset'):
+                ui.btnEsReset.setEnabled(False)
+            for edit_btn in ["btnPosEdit", "btnVelEdit", "btnGuideEdit", "btnFilterEdit"]:
+                btn = getattr(ui, edit_btn, None)
+                if btn:
+                    btn.setEnabled(False)
+            if hasattr(ui, 'cmbAxisName'):
+                ui.cmbAxisName.setEnabled(False)
+
+            self._guide_backup = {
+                "GuidePitch": self.Controler_Codec.Guide.SetProp.GuidePitch,
+                "GuidePosMax": self.Controler_Codec.Guide.SetProp.GuidePosMax,
+                "GuidePosMaxMax": self.Controler_Codec.Guide.SetProp.GuidePosMaxMax,
+                "GuidePosMin": self.Controler_Codec.Guide.SetProp.GuidePosMin,
+            }
+
+            if hasattr(self.state_machine, 't_edit_GuideProps'):
+                print("[Controller] Now calling t_edit_GuideProps to enter edit_GuideProps state.")
+                self.state_machine.t_edit_GuideProps()
+
+        except Exception as e:
+            print(f"[Controller] Error in to_e_GuideProps: {e}")
+
+    def restore_backup(self, backup_dict, target_obj):
+        for key, value in backup_dict.items():
+            if hasattr(target_obj, key):
+                setattr(target_obj, key, value)
+            else:
+                print(f"[Controller] Warning: Cannot restore {key} on {target_obj}")
+
     def update_ui(self):
         """Push all bound data to the UI widgets."""
         for name, (widget_type, path, fmt) in self.ui._bindings.items():
@@ -352,6 +612,10 @@ class Controller:
 
             value = self.resolve_path(self.Controler_Codec, path)
             if widget_type in ("QLineEdit", "QLabel"):
+                # Skip updating if user is currently editing this field (enabled during edit states)
+                if widget_type == "QLineEdit" and widget.isEnabled():
+                    continue
+
                 if fmt:
                     try:
                         value_num = float(value)
@@ -360,6 +624,7 @@ class Controller:
                         widget.setText(str(value))
                 else:
                     widget.setText(str(value))
+
             elif widget_type == "QRadioButton":
                 widget.setChecked(bool(value))
             elif widget_type == "QSlider":

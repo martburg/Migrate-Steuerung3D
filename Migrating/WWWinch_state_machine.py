@@ -19,6 +19,9 @@ class AxisState(str, Enum):
     TO_E_VEL_PROPS =         "to_e_VelProps"
     EDIT_FILTER_PROPS =      "edit_FilterProps"
     TO_E_FILTER_PROPS =      "to_e_FilterProps"
+    EDIT_GUIDE_PROPS =       "edit_GuideProps"
+    TO_E_GUIDE_PROPS =       "to_e_GuideProps"
+
 
 class AxisStateMachine:
     states = [state.value for state in AxisState]
@@ -27,27 +30,33 @@ class AxisStateMachine:
         self.machine = Machine(model=self, states=AxisStateMachine.states, initial=AxisState.OFFLINE.value)
 
         # More granular transitions
-        self.machine.add_transition('t_online',           'offline',           'online',            conditions='can_online')
-        self.machine.add_transition('t_offline',          '*',                 'offline')
-        self.machine.add_transition("t_online_waiting",   "online",            "online_waiting")
-        self.machine.add_transition("t_to_init",          "online_waiting",    "to_init",           conditions="can_init")
-        self.machine.add_transition('enter_init',         'to_init',           'init')
-        self.machine.add_transition('init_done',          'init',              'to_idle',           conditions='is_ready')
-        self.machine.add_transition('enter_idle',         'to_idle',           'idle')
-        self.machine.add_transition('start_move',         'idle',              'moving',            conditions='is_moving')
-        self.machine.add_transition('hold',               'moving',            'holding',           conditions='is_holding')
-        self.machine.add_transition('move',               'holding',           'moving',            conditions='is_moving')
-        self.machine.add_transition('trip',               '*',                 'fault',             conditions='has_fault')
-        self.machine.add_transition('recover',            'fault',             'recovering',        conditions='wants_reset')
-        self.machine.add_transition('resume',             'recovering',        'idle',              conditions=['is_ready', 'no_fault'])
-        self.machine.add_transition('shutdown',           '*',                 'offline',           conditions='in_estop')
-        self.machine.add_transition('t_e_PosProps',       'init',               'to_e_PosProps', conditions='in_init')
+        self.machine.add_transition('t_online',           'offline',            'online',            conditions='can_online')
+        self.machine.add_transition('t_offline',          '*',                  'offline')
+        self.machine.add_transition("t_online_waiting",   "online",             "online_waiting")
+        self.machine.add_transition("t_to_init",          "online_waiting",     "to_init",           conditions="can_init")
+        self.machine.add_transition('enter_init',         'to_init',            'init')
+        self.machine.add_transition('init_done',          'init',               'to_idle',           conditions='is_ready')
+        self.machine.add_transition('enter_idle',         'to_idle',            'idle')
+        self.machine.add_transition('start_move',         'idle',               'moving',            conditions='is_moving')
+        self.machine.add_transition('hold',               'moving',             'holding',           conditions='is_holding')
+        self.machine.add_transition('move',               'holding',            'moving',            conditions='is_moving')
+        self.machine.add_transition('trip',               '*',                  'fault',             conditions='has_fault')
+        self.machine.add_transition('recover',            'fault',              'recovering',        conditions='wants_reset')
+        self.machine.add_transition('resume',             'recovering',         'idle',              conditions=['is_ready', 'no_fault'])
+        self.machine.add_transition('shutdown',           '*',                  'offline',           conditions='in_estop')
+        self.machine.add_transition('t_e_PosProps',       'init',               'to_e_PosProps',     conditions='in_init')
         self.machine.add_transition('t_edit_PosProps',    'to_e_PosProps',      'edit_PosProps')
-        self.machine.add_transition('t_e_VelProps',       'init',               'to_e_VelProps', conditions='in_init')
+        self.machine.add_transition('t_e_VelProps',       'init',               'to_e_VelProps',     conditions='in_init')
         self.machine.add_transition('t_edit_VelProps',    'to_e_VelProps',      'edit_VelProps')
-        self.machine.add_transition('t_e_FilterProps',    'init',               'to_e_FilterProps', conditions='in_init')
+        self.machine.add_transition('t_e_FilterProps',    'init',               'to_e_FilterProps',  conditions='in_init')
         self.machine.add_transition('t_edit_FilterProps', 'to_e_FilterProps',   'edit_FilterProps')
-        self.machine.add_transition('finish_edit',        'edit_PosProps',      'idle')
+        self.machine.add_transition('t_e_GuideProps',     'init',               'to_e_GuideProps',   conditions='in_init')
+        self.machine.add_transition('t_edit_GuideProps',  'to_e_GuideProps',    'edit_GuideProps')        
+        self.machine.add_transition('t_finish_edit',      'edit_PosProps',      'init')
+        self.machine.add_transition('t_finish_edit',      'edit_VelProps',      'init')
+        self.machine.add_transition('t_finish_edit',      'edit_FilterProps',   'init')
+        self.machine.add_transition('t_finish_edit',      'edit_GuideProps',    'init')
+
 
         self._actprop = {}
         self._estop = {}
