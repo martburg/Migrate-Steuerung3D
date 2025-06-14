@@ -12,6 +12,9 @@ except ImportError:
 class Joystick:
     def __init__(self):
         self.js = None
+        self.button_pressed = False
+
+
         if _pygame_ok:
             pygame.joystick.init()
             count = pygame.joystick.get_count()
@@ -29,9 +32,13 @@ class Joystick:
     def read(self):
         if self.js:
             pygame.event.pump()
+            self.button_pressed = self.js.get_button(0)
             return self.js.get_axis(1) * 32767  # Scale to [-32767, +32767]
         else:
             return 0.0
+        
+    def is_joystick_active(self):
+            return self.joystick.is_active()
 
 class InputManager:
     def __init__(self):

@@ -27,6 +27,7 @@ class AxisStateMachine:
     states = [state.value for state in AxisState]
 
     def __init__(self):
+        
         self.machine = Machine(model=self, states=AxisStateMachine.states, initial=AxisState.OFFLINE.value)
 
         # More granular transitions
@@ -37,9 +38,13 @@ class AxisStateMachine:
         self.machine.add_transition('enter_init',         'to_init',            'init')
         self.machine.add_transition('init_done',          'init',               'to_idle',           conditions='is_ready')
         self.machine.add_transition('enter_idle',         'to_idle',            'idle')
-        self.machine.add_transition('start_move',         'idle',               'moving',            conditions='is_moving')
-        self.machine.add_transition('hold',               'moving',             'holding',           conditions='is_holding')
-        self.machine.add_transition('move',               'holding',            'moving',            conditions='is_moving')
+        self.machine.add_transition('start_move',         'idle',                'moving',           conditions=['is_enabled', 'is_moving'])
+        self.machine.add_transition('move',               'holding',             'moving',           conditions=['is_enabled', 'is_moving'])
+        self.machine.add_transition('hold',               'moving',              'holding',          conditions='is_enabled')
+        self.machine.add_transition('stop_motion', 'moving', 'idle', conditions=['is_disabled'])
+        self.machine.add_transition('stop_motion', 'holding', 'idle', conditions=['is_disabled'])
+        self.machine.add_transition('hold', 'idle', 'holding', conditions=['is_enabled', 'is_not_moving'])
+
         self.machine.add_transition('trip',               '*',                  'fault',             conditions='has_fault')
         self.machine.add_transition('recover',            'fault',              'recovering',        conditions='wants_reset')
         self.machine.add_transition('resume',             'recovering',         'idle',              conditions=['is_ready', 'no_fault'])
@@ -62,6 +67,8 @@ class AxisStateMachine:
         self._estop = {}
         self._setprop = {}
         self._prev_state = self.state
+        self._init_achse_latched = False
+
 
     def update(self, actprop: dict, estop: dict, setprop: dict):
         """Update the state machine based on the latest properties."""
@@ -69,12 +76,15 @@ class AxisStateMachine:
         self._estop = estop
         self._setprop = setprop
         self._prev_state = self.state
+        if getattr(self._actprop, "InitAchse", 0) == 1:
+            self._init_achse_latched = True
+
 
         try:
             # --- Axis name check ---
             axis_name = setprop.get("Name", "") if isinstance(setprop, dict) else getattr(setprop, "Name", "")
             axis_name = axis_name.strip() if axis_name else ""
-            print(f"[StateMachine] axis_name check: axis_name='{axis_name}', state='{self.state}'")
+            #print(f"[StateMachine] axis_name check: axis_name='{axis_name}', state='{self.state}'")
 
             if not axis_name:
                 if self.state != AxisState.OFFLINE.value:
@@ -102,9 +112,11 @@ class AxisStateMachine:
                 print(f"[StateMachine] In ONLINE state. Checking can_init:")
                 print(f" - in_estop = {self.in_estop()}")
                 print(f" - InitAchse = {getattr(self._actprop, 'InitAchse', 'MISSING')}")
+                print(f" - InitAchseLatched = {self._init_achse_latched}")
                 if self.can_init():
                     print("[StateMachine] Transitioning ONLINE → TO_INIT")
                     self.t_to_init()
+                    self._init_achse_latched = False
 
             elif self.state == AxisState.TO_INIT.value:
                 print("[StateMachine] Transitioning TO_INIT → INIT")
@@ -112,7 +124,7 @@ class AxisStateMachine:
 
             elif self.state == AxisState.INIT.value:
                 if self.in_estop():
-                    print("[StateMachine] Still in E-Stop, staying in INIT.")
+                    #print("[StateMachine] Still in E-Stop, staying in INIT.")
                     return self.state
                 print("[StateMachine] INIT done, transitioning → TO_IDLE")
                 self.init_done()
@@ -122,20 +134,24 @@ class AxisStateMachine:
                 self.enter_idle()
 
             elif self.state == AxisState.IDLE.value:
-                if self.is_moving():
+                if self.is_enabled() and not self.is_moving():
+                    print("[StateMachine] Joystick held (no motion), transitioning IDLE → HOLDING")
+                    self.hold()
+                elif self.is_moving():
                     print("[StateMachine] Motion detected, transitioning IDLE → MOVING")
                     self.start_move()
-
             elif self.state == AxisState.MOVING.value:
-                if self.is_holding():
-                    print("[StateMachine] Holding detected, transitioning MOVING → HOLDING")
-                    self.hold()
+                if self.is_enabled():
+                        print("[StateMachine] Joystick held, transitioning MOVING → HOLDING")
+                        self.hold()
 
             elif self.state == AxisState.HOLDING.value:
                 if self.is_moving():
                     print("[StateMachine] Motion resumed, transitioning HOLDING → MOVING")
                     self.move()
-
+                elif self.is_disabled():
+                    print("[StateMachine] Enable released, transitioning HOLDING → IDLE")
+                    self.stop_motion()
             elif self.state == AxisState.FAULT.value:
                 if self.wants_reset():
                     print("[StateMachine] Reset requested, transitioning FAULT → RECOVERING")
@@ -175,7 +191,7 @@ class AxisStateMachine:
         return getattr(self._actprop, "EStopStatus", 0) == 0
 
     def can_init(self):
-        return self.in_estop() and getattr(self._actprop, "InitAchse", 0) == 1
+        return self.in_estop() and self._init_achse_latched
     
     def is_ready(self):
         return not self.in_estop()
@@ -185,12 +201,18 @@ class AxisStateMachine:
 
     def is_moving(self):
         return abs(getattr(self._actprop, "SpeedSoll", 0)) > 0.01
-
-    def is_holding(self):
-        return abs(getattr(self._actprop, "SpeedSoll", 0)) <= 0.01
+    
+    def is_enabled(self):
+        return getattr(self._actprop, "Enable", False)
+    
+    def is_disabled(self):
+        return not getattr(self._actprop, "Enable", False)
 
     def in_estop(self):
         return not getattr(self._estop, "EsMaster", False)
+    
+    def is_not_moving(self):
+        return not self.is_moving() 
     
     def in_init(self):
         return self.state == AxisState.INIT.value or self.state == AxisState.TO_INIT.value

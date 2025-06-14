@@ -46,32 +46,22 @@ class SimCodec(Codec):
     def simulate(self, IntervallR):
         fa = "%3.2f"
         self.ControlingPIDRx = "1234"
-        self.LTold = 1
+
+        time_now = time.perf_counter()
+        if self.timeOld is not None:
+                dt = (time_now - self.timeOld) * 1000.0  # Convert to milliseconds
+        else:
+            dt = 0.0
+        self.timeOld = time_now
+        self.ActProp.LTOld = dt
+
+        #print(f"[SimCodec] Cycle time = {dt:.3f} s")
+
+
         self.Status = "SIMUL"
         self.GuideStatus = "SIMUL"
         self.Enable = 0
-        ''''
-        # --- Ensure simulated EStop is ready ---
-        try:
-            if hasattr(self, 'EStop') and hasattr(self.EStop, 'EsReady'):
-                self.EStop.EsReady = True
-        except AttributeError:
-            print("EStop attribute not found, skipping EsReady assignment.")    
 
-        # --- Persist InitAchse if set externally (e.g. by controller) ---
-        if hasattr(self, 'ActProp') and hasattr(self.ActProp, 'InitAchse'):
-            if getattr(self.ActProp, 'InitAchse', 0) == 1:
-                if not hasattr(self, '_persisted_initachse'):
-                    self._persisted_initachse = 1
-            elif hasattr(self, '_persisted_initachse'):
-                # Only clear if explicitly set to 0 externally
-                if getattr(self.ActProp, 'InitAchse', 0) == 0:
-                    self._persisted_initachse = 0
-        # Always use persisted value if present
-        if hasattr(self, '_persisted_initachse'):
-            self.ActProp.InitAchse = self._persisted_initachse
-
-    '''
         if self.Enable == 1:
             SpeedIstIntern = float(self.SpeedIstUI)
             SpeedSollIntern = max(min(float(self.SpeedSoll), float(self.SpeedMax)), -float(self.SpeedMax))
@@ -114,11 +104,6 @@ class SimCodec(Codec):
         self.EStopCutPos = 0
         self.EStopCutVel = 0
         self.EsEStop2 = False
-
-        # Set all cbEs... bits to True for simulation
-        #for attr in dir(self.EStop):
-        #    if attr.startswith('Es') and isinstance(getattr(self.EStop, attr), bool):
-        #        setattr(self.EStop, attr, True)
 
     def step_sim(self):
         """

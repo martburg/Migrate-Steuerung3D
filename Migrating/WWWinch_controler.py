@@ -4,16 +4,24 @@ from WWWinch_achsmemory import Achsmemory
 from WWWinch_input_manager import InputManager
 from WWWinch_state_machine import AxisStateMachine
 
+from input.input_manager import InputManager
+from input.pygame_joystick import PygameJoystickInput
+
+
 import subprocess
 import sys
 import os
-import signal
+import time
 
 
 
 MEM_NAME_GUI2HW = "achse_controler_to_hw"
 MEM_NAME_HW2GUI = "achse_hw_to_controler"
 
+bindings = {
+    "SpeedSoll": {"source": "axis_1", "scale": 32767},
+    "Enable": {"source": "button_5"},
+}
 
 class Controller:
     def __init__(self, ui):
@@ -23,7 +31,7 @@ class Controller:
         self.HW2GUI = Achsmemory(MEM_NAME_HW2GUI, create=True)
 
         self.Controler_Codec = None  # Defer instantiation
-        self.input_manager = InputManager()
+        self.input_manager = InputManager(PygameJoystickInput(), bindings)
         self.state_machine = AxisStateMachine()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
@@ -43,6 +51,8 @@ class Controller:
         self._prev_state = None
         self._write_countdown = 0
 
+        self._last_update_time = time.perf_counter()
+
     def ensure_codec(self, axis_name):
         if axis_name == 'SIMUL':
             from WWWinch_sim_codec import SimCodec
@@ -60,6 +70,9 @@ class Controller:
 
     def update(self):
         self.step_count += 1
+        now = time.perf_counter()
+        self.dt = now - self._last_update_time
+        self._last_update_time = now
 
         # Step 0: Get selected axis name from UI
         axis_name = self.ui.ui.cmbAxisName.currentText().strip() if hasattr(self.ui.ui, "cmbAxisName") else ""
@@ -111,13 +124,15 @@ class Controller:
         match state:
             case "to_init":
                 print("[Controller] Entering to_init: preparing for init...")
-                self.ui_enable_edits()
+                self.ui_edits(True)
             case "init":
                 print("[Controller] Entering init: waiting for EStop clear...")
+                self.ui_edits(True)
             case "to_idle":
                 print("[Controller] Entering to_idle: preparing for idle...")
             case "idle":
                 print("[Controller] Entering idle: updating EStop UI and enabling reset button...")
+                self.ui_edits(True)
             case "moving":
                 print("[Controller] Entering moving: update UI for movement...")
             case "fault":
@@ -131,6 +146,10 @@ class Controller:
                 print("[Controller] Entering online_waiting: waiting for backend readiness...")
                 self.Controler_Codec.ActProp.InitAchse = 1
                 self.set_props(self.Controler_Codec.to_dict({}))
+                self.state_machine.update(
+                self.Controler_Codec.ActProp,
+                self.Controler_Codec.EStop,
+                self.Controler_Codec.SetProp)
             case "online":
                 print("[Controller] Entering online: ready for init or idle state...")
             case "to_e_PosProps":
@@ -153,28 +172,31 @@ class Controller:
                 self.to_e_GuideProps()
             case "edit_GuideProps":
                 print("[Controller] Editing guider properties...")
+            case "moving" | "holding":
+                self.ui_edits(False)
             case _:
                 print(f"[Controller] Entering {state}: no specific handler.")
 
-    def ui_enable_edits(self):
+    def ui_edits(self,value):
         """
         Update EStop checkboxes and enable btnEsReset when entering idle.
         """
         ui = self.ui.ui
         try:
             if hasattr(ui, 'btnEsReset'):
-                ui.btnEsReset.setEnabled(True)
+                ui.btnEsReset.setEnabled(value)
             if hasattr(ui, 'btnPosEdit'):
-                ui.btnPosEdit.setEnabled(True)
+                ui.btnPosEdit.setEnabled(value)
             if hasattr(ui, 'btnVelEdit'):
-                ui.btnVelEdit.setEnabled(True)
+                ui.btnVelEdit.setEnabled(value)
             if hasattr(ui, 'btnGuideEdit'):
-                ui.btnGuideEdit.setEnabled(True)
+                ui.btnGuideEdit.setEnabled(value)
             if hasattr(ui, 'btnFilterEdit'):
-                ui.btnFilterEdit.setEnabled(True)           
+                ui.btnFilterEdit.setEnabled(value)           
         except Exception as e:
             print(f"[Controller] Error updating EStop UI: {e}")
         # Optionally, update other EStop-related UI elements here as needed
+
 
     def handle_axis_selection(self, axis_name: str):
             axis_name = axis_name.strip()
@@ -274,7 +296,7 @@ class Controller:
                 print("[Controller] Warning: finish_edit transition not available")
 
             self._prev_state = self.state_machine.state
-            self.ui_enable_edits()
+            self.ui_edits(True)
 
             ui = self.ui.ui
 
@@ -673,6 +695,9 @@ class Controller:
                 widget.setChecked(bool(value))
             elif widget_type == "QSlider":
                 widget.setValue(int(value))
+
+            #if hasattr(widget, "txtTimeTick"):
+            self.ui.ui.txtTimeTick.setText(f"{self.dt * 1000:.1f}")
 
         # Update all cbEs* checkboxes bound to EStop.*
         for name, (widget_type, path, fmt) in self.ui._bindings.items():
