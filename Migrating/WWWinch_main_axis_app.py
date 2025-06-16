@@ -2,6 +2,7 @@ import sys
 import os
 import signal
 import time
+import atexit
 from subprocess import Popen, CalledProcessError, SubprocessError
 from PySide6.QtWidgets import QApplication, QMessageBox
 from WWWinch_widget import Widget
@@ -17,54 +18,48 @@ ACHSEN = {
     'SIMUL':  ("127.0.0.1", 15001, "127.0.0.1", 15005),
 }
 
-achse_proc = None  # For use in signal handler
+controller = None  # Global so signal and atexit handlers can access it
 
 
-def shutdown_backend():
-    global achse_proc
-    if achse_proc and achse_proc.poll() is None:
-        print("[Main] Terminating backend process...")
-        achse_proc.terminate()
-        try:
-            achse_proc.wait(timeout=2)
-        except Exception:
-            achse_proc.kill()
-        print("[Main] Backend shutdown complete.")
+def safe_shutdown():
+    global controller
+    if controller is not None:
+        print("[Main] Triggering safe shutdown...")
+        controller.stop_backend()
+        controller.shutdown()
+        controller = None  # Prevent double shutdown
 
 
-def signal_handler(signum, frame):
-    print(f"[Main] Received signal: {signum}")
-    shutdown_backend()
+def handle_signal(signum, frame):
+    print(f"[Main] Caught signal {signum}, shutting down...")
+    safe_shutdown()
     sys.exit(0)
 
 
 def main():
-    global achse_proc
+    global controller
 
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
+    atexit.register(safe_shutdown)
 
     app = QApplication(sys.argv)
+    app.aboutToQuit.connect(safe_shutdown)
 
-    controler = None
-
-    # --- Launch UI ---
     try:
         time.sleep(0.2)  # Let backend init shared memory
 
         widget = Widget()
-
         controller = Controller(widget)
+        widget.controller = controller
 
         controller.start()
-
         widget.show()
+
         exit_code = app.exec()
 
     finally:
-        shutdown_backend()
-        if controller is not None:
-            controller.shutdown()  # ← this ensures shm is cleaned
+        safe_shutdown()
 
     sys.exit(exit_code)
 

@@ -1,8 +1,8 @@
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QMessageBox
 from WWWinch_achsmemory import Achsmemory
-from WWWinch_input_manager import InputManager
 from WWWinch_state_machine import AxisStateMachine
+from multiprocessing import shared_memory
 
 from input.input_manager import InputManager
 from input.pygame_joystick import PygameJoystickInput
@@ -11,7 +11,7 @@ from input.pygame_joystick import PygameJoystickInput
 import subprocess
 import sys
 import os
-import time
+import time,signal
 
 
 
@@ -56,10 +56,19 @@ class TimingDiagnostics:
 
 class Controller:
     def __init__(self, ui):
+
+        self.clean_memory()
+
         self.ui = ui  # Reference to the UI widget (AchseWidget)
 
         self.GUI2HW  = Achsmemory(MEM_NAME_GUI2HW, create=True)
         self.HW2GUI = Achsmemory(MEM_NAME_HW2GUI, create=True)
+
+        self.backend_proc = None
+
+        self._last_frame_id = None
+        self._repeat_count = 0
+
 
         self.Controler_Codec = None  # Defer instantiation
         self.input_manager = InputManager(PygameJoystickInput(), bindings)
@@ -85,11 +94,11 @@ class Controller:
         self._timing_diag = TimingDiagnostics()
 
         self._last_update_time = time.perf_counter()
+
         self.estop_latch = False
         self.EsReady_state = False
         self.EStoprequested = False
         self._estop_bit_initial = None
-
 
     def ensure_codec(self, axis_name):
         if axis_name == 'SIMUL':
@@ -99,7 +108,7 @@ class Controller:
             from WWWinch_codec import Codec
             self.Controler_Codec = Codec()
 
-    def start(self, interval_ms=10):
+    def start(self, interval_ms=100):
         """Start the periodic update timer."""
         self.timer.start(interval_ms)
 
@@ -131,16 +140,6 @@ class Controller:
 
         # Step 3: Inject joystick input and re-unpack
         self.input_manager.inject(raw_props)
-        if self.estop_latch:
-            current = self.Controler_Codec.EStop.EsMaster
-            if current != self._estop_bit_initial:
-                print("[Controller] EStop latch complete: EsMaster changed.")
-                self.estop_latch = False
-                self._estop_bit_initial = None
-                self.Controler_Codec.ActProp.EStopReset = False
-            else:
-                self.Controler_Codec.ActProp.EStopReset = self.EStoprequested
-
         self.Controler_Codec.unpack(raw_props)
 
         # Step 4: State machine update
@@ -166,7 +165,8 @@ class Controller:
         self._handle_write_countdown()        
 
         # Step 6: Push updated properties to backend
-        self.set_props(self.Controler_Codec.to_dict({}))
+        if self.Controler_Codec:
+            self.set_props(self.Controler_Codec.to_dict({}))
 
         # Step 7: Update UI
         self.update_ui()
@@ -225,6 +225,14 @@ class Controller:
                 print("[Controller] Editing guider properties...")
             case "moving" | "holding":
                 self.ui_edits(False)
+            case "waiting_estop_clear":
+                print("[Controller] Waiting for EStop clear from backend...")
+                self.Controler_Codec.ActProp.EStopReset = True
+                self.ui_edits(False)  # Disable UI 
+            case "waiting_estop_engage":
+                print("[Controller] Waiting for EStop engage to be confirmed...")
+                self.Controler_Codec.ActProp.EStopReset = False
+                self.ui_edits(False)         
             case _:
                 print(f"[Controller] Entering {state}: no specific handler.")
 
@@ -286,7 +294,7 @@ class Controller:
         self.Controler_Codec.SetProp.Name = axis_name
 
         self.restart_backend(axis_name)
-        self.HW2GUI.write(self.Controler_Codec.to_dict({}))
+        self.HW2GUI.write_pending(self.Controler_Codec.to_dict({}))
 
     def handle_edit_PosProps(self):
         """Handler for entering edit_SetProps state when edit buttons are pressed."""
@@ -457,7 +465,7 @@ class Controller:
             # 2. Push props
             self.Controler_Codec.ActProp.Modus = "w"
             self.set_props(self.Controler_Codec.to_dict({}))
-            self._write_countdown = 2
+            self._write_countdown = 10
 
             # 3. Finish edit
             print("[Controller] Comited — attempting to return to INIT via finish_edit.")
@@ -498,16 +506,20 @@ class Controller:
             print(f"[Controller] Error during write for {group}: {e}")
 
     def handle_click_EsReset(self):
-        self.estop_latch = True
-        self._estop_bit_initial = self.Controler_Codec.EStop.EsMaster
-        self.EStoprequested = True  # or False
-        self.Controler_Codec.ActProp.EStopReset = self.EStoprequested
+        print("[Controller] EStop Reset button clicked.")
+        self.Controler_Codec.ActProp.EStopReset = True
+        self.set_props(self.Controler_Codec.to_dict({}))
+        if hasattr(self.state_machine, 't_request_estop_clear'):
+            self.state_machine.t_request_estop_clear()
+        else:
+            print("[Controller] State machine does not support t_request_estop_clear transition.")
 
     def handle_click_EStop(self):
-        self.estop_latch = True
-        self._estop_bit_initial = self.Controler_Codec.EStop.EsMaster
-        self.EStoprequested = False  # or False
-        self.Controler_Codec.ActProp.EStopReset = self.EStoprequested
+        print("[Controller] EStop button clicked.")
+        if hasattr(self.state_machine, 't_request_estop_engage'):
+            self.state_machine.t_request_estop_engage()
+        else:
+            print("[Controller] State machine cannot transition to waiting_estop_engage")
 
     def to_e_PosProps(self):
         """Transition to edit position properties state."""
@@ -783,6 +795,7 @@ class Controller:
 
     def start_backend(self, axis_name: str):
         """Launch a new backend process for the specified axis."""
+        import platform
         backend_path = os.path.join(os.path.dirname(__file__), "WWWinch_backend_udp.py")
         if not os.path.exists(backend_path):
             print(f"[Controller] Backend script not found: {backend_path}")
@@ -790,33 +803,54 @@ class Controller:
 
         try:
             print(f"[Controller] Launching backend for axis '{axis_name}'...")
-            self.backend_proc = subprocess.Popen(
-                [sys.executable, backend_path, "--achse", axis_name],
-                stdout=sys.stdout,
-                stderr=sys.stderr,
-                stdin=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
-            )
+
+            if os.name == 'nt':
+                # Windows: use CREATE_NEW_PROCESS_GROUP
+                creationflags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+                self.backend_proc = subprocess.Popen(
+                    [sys.executable, backend_path, "--achse", axis_name],
+                    stdout=sys.stdout,
+                    stderr=sys.stderr,
+                    stdin=subprocess.DEVNULL,
+                    creationflags=creationflags
+                )
+            else:
+                # POSIX (Linux/macOS): create new process group
+                self.backend_proc = subprocess.Popen(
+                    [sys.executable, backend_path, "--achse", axis_name],
+                    stdout=sys.stdout,
+                    stderr=sys.stderr,
+                    stdin=subprocess.DEVNULL,
+                    start_new_session=True
+                )
+
             print(f"[Controller] Backend launched with PID {self.backend_proc.pid}")
+
         except Exception as e:
             print(f"[Controller] Failed to launch backend: {e}")
             self.backend_proc = None
 
     def stop_backend(self):
-        """Terminate any existing backend process."""
-        if hasattr(self, "backend_proc") and self.backend_proc:
-            print("[Controller] Stopping existing backend...")
+        if self.backend_proc and self.backend_proc.poll() is None:
+            print(f"[Controller] Terminating backend with PID {self.backend_proc.pid}")
             try:
-                self.backend_proc.terminate()
-                self.backend_proc.wait(timeout=2)
-                print("[Controller] Backend stopped cleanly.")
-            except subprocess.TimeoutExpired:
-                print("[Controller] Backend did not exit in time — killing.")
-                self.backend_proc.kill()
+                if os.name == 'nt':
+                    # Windows: use send_signal or terminate
+                    self.backend_proc.send_signal(signal.CTRL_BREAK_EVENT)
+                    self.backend_proc.wait(timeout=3)
+                else:
+                    # POSIX: use killpg
+                    os.killpg(os.getpgid(self.backend_proc.pid), signal.SIGTERM)
+                    self.backend_proc.wait(timeout=3)
             except Exception as e:
-                print(f"[Controller] Error stopping backend: {e}")
-            finally:
-                self.backend_proc = None
+                print(f"[Controller] SIGTERM failed: {e}, trying SIGKILL or force kill...")
+                try:
+                    if os.name == 'nt':
+                        self.backend_proc.kill()
+                    else:
+                        os.killpg(os.getpgid(self.backend_proc.pid), signal.SIGKILL)
+                except Exception as e2:
+                    print(f"[Controller] Force kill failed: {e2}")
 
     def restart_backend(self, axis_name: str):
         """
@@ -825,14 +859,18 @@ class Controller:
         self.stop_backend()
         self.start_backend(axis_name)
 
-    def shutdown(self):
-        """Gracefully shutdown the controller."""
-        self.stop()
-        self.GUI2HW.close()
-        self.HW2GUI.close()
-        self.GUI2HW.unlink()
-        self.HW2GUI.unlink()
-        print("[Controller] Shutdown complete.")
+    def clean_memory(self):
+        shm_names = [MEM_NAME_GUI2HW, MEM_NAME_HW2GUI]
+        for name in shm_names:
+            try:
+                shm = shared_memory.SharedMemory(name=name)
+                shm.close()
+                shm.unlink()
+                print(f"[Main] Unlinked shared memory: {name}")
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                print(f"[Main] Error cleaning shared memory '{name}': {e}")
 
     def set_props(self, props: dict):
         props = {
@@ -844,5 +882,24 @@ class Controller:
         self.frame_count += 1
 
     def get_props(self) -> dict:
-        #return self.HW2GUI.read()
-        return self.HW2GUI.read_confirmed()
+        frame = self.HW2GUI.read_confirmed()
+        if frame is None:
+            print("[Controller:backend-read] Frame is None")
+            return None
+
+        #frame_id = frame.get("Frame")
+        #if frame_id == self._last_frame_id:
+        #    self._repeat_count += 1
+        #    if self._repeat_count in {6, 9, 12}:  # Only log at key thresholds
+        #        print(f"[Guard:backend-read] Frame {frame_id} repeated {self._repeat_count} times — possible stall")
+        #else:
+        #    self._repeat_count = 0
+        #    self._last_frame_id = frame_id
+
+        return frame
+        
+    def shutdown(self):
+        print("[Controller] shutdown() called — stopping backend and timer.")
+        self.stop()
+        self.stop_backend()
+        self.clean_memory() 

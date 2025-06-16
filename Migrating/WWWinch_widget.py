@@ -34,6 +34,8 @@ class Widget(QWidget):
 
         self._load_ui()
 
+        self.Controller = None  # Will be set by Controller class
+
         self._bindings = {
                 "txtAccMax":          ("QLineEdit", "ActProp.AccMax", "{:.2f}"),
                 "txtAccMove":         ("QLineEdit", "SetProp.AccMax", "{:.2f}"),
@@ -212,4 +214,12 @@ class Widget(QWidget):
             current[parts[-1]] = value
 
         return props
+    
+    def closeEvent(self, event):
+        if self.controller:
+            print("[Widget] Window close requested. Calling controller.shutdown()...")
+            self.controller.shutdown()
+        else:
+            print("[Widget] Window close requested, but no controller linked.")
+        super().closeEvent(event)
 

@@ -5,10 +5,19 @@ import time
 import socket
 import argparse
 from multiprocessing import shared_memory
-import sys ,json
+import sys ,signal
 
 MEM_NAME_GUI2HW = "achse_controler_to_hw"
 MEM_NAME_HW2GUI = "achse_hw_to_controler"
+
+should_exit = False
+
+def handle_sigterm(signum, frame):
+    global should_exit
+    print("[Backend] Caught SIGTERM, setting exit flag.")
+    should_exit = True
+
+signal.signal(signal.SIGTERM, handle_sigterm)
 
 ACHSEN     = {'Anton' : ("172.16.17.1", 15001,"172.16.17.5", 15001),
               'Burt'  : ("172.16.17.2", 15001,"172.16.17.5", 15002),
@@ -54,7 +63,8 @@ class backend_udp:
         self.run()
 
     def run(self):
-        while True:
+        global should_exit
+        while not should_exit:
             try:
                 #controler_in_data = self.GUI2HW.read()
                 controler_in_data = self.GUI2HW.read_pending()
@@ -75,11 +85,11 @@ class backend_udp:
                     **self.Backend_Codec.to_dict(controler_out_data)
                 }
                 # --- Perform write ---
+
                 self.HW2GUI.write_confirmed(frame_out)
                 self.frame_count += 1
 
-
-                self.GUI2HW.confirm_pending()
+                self.GUI2HW._mark_confirmed()
 
                 time.sleep(0.01)
             except KeyboardInterrupt:

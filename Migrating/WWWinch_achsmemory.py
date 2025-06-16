@@ -21,18 +21,18 @@ def guarded_access(role: str):
 
             tag = result.get("SyncTag")
             if tag != SYNC_TAG:
-                print(f"[Guard:{role}] SyncTag mismatch: expected {SYNC_TAG:x}, got {tag}")
+                #print(f"[Guard:{role}] SyncTag mismatch: expected {SYNC_TAG:x}, got {tag}")
                 return {}
 
             frame = result.get("Frame")
-            if frame is not None:
-                if frame == last_frame["frame"]:
-                    last_frame["count"] += 1
-                    if last_frame["count"] > MAX_FRAME_REPEAT:
-                        print(f"[Guard:{role}] Frame {frame} repeated {last_frame['count']} times — possible stall")
-                else:
-                    last_frame["frame"] = frame
-                    last_frame["count"] = 0
+            #if frame is not None:
+            #    if frame == last_frame["frame"]:
+            #        last_frame["count"] += 1
+            #        if last_frame["count"] > MAX_FRAME_REPEAT:
+            #            print(f"[Guard:{role}] Frame {frame} repeated {last_frame['count']} times — possible stall")
+            #    else:
+            #        last_frame["frame"] = frame
+            #        last_frame["count"] = 0
 
             timestamp = result.get("Timestamp")
             if timestamp:
@@ -132,8 +132,9 @@ class Achsmemory:
     def read_pending(self) -> dict:
         return self._raw_read().get("pending", {})
 
-    def confirm_pending(self):
-        self.write_confirmed(self.read_pending())
+
+    def _mark_confirmed(self):
+        pass
 
     def write_confirmed(self, data: dict):
         payload = json.dumps({"confirmed": data}).encode("utf-8")
@@ -141,6 +142,7 @@ class Achsmemory:
             raise ValueError(f"Payload too large: {len(payload)} > {SHM_SIZE}")
         #print(f"[DEBUG] Final payload length: {len(payload)}")
         self._raw_write(payload)
+
 
     @guarded_access("controller-read")
     def read_confirmed(self) -> dict:

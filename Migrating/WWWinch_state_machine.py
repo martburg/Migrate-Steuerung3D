@@ -21,6 +21,8 @@ class AxisState(str, Enum):
     TO_E_FILTER_PROPS =      "to_e_FilterProps"
     EDIT_GUIDE_PROPS =       "edit_GuideProps"
     TO_E_GUIDE_PROPS =       "to_e_GuideProps"
+    WAITING_ESTOP_CLEAR=     "waiting_estop_clear"
+    WAITING_ESTOP_ENGAGE=    "waiting_estop_engage"
 
 
 class AxisStateMachine:
@@ -29,6 +31,12 @@ class AxisStateMachine:
     def __init__(self):
         
         self.machine = Machine(model=self, states=AxisStateMachine.states, initial=AxisState.OFFLINE.value)
+
+        to_estop=[
+        'online', 'online_waiting',
+        'init', 'idle', 'moving',
+        'edit_PosProps', 'edit_VelProps',
+        'edit_FilterProps', 'edit_GuideProps']
 
         # More granular transitions
         self.machine.add_transition('t_online',           'offline',            'online',            conditions='can_online')
@@ -52,15 +60,18 @@ class AxisStateMachine:
         self.machine.add_transition('t_e_PosProps',       'init',               'to_e_PosProps',     conditions='in_init')
         self.machine.add_transition('t_edit_PosProps',    'to_e_PosProps',      'edit_PosProps')
         self.machine.add_transition('t_e_VelProps',       'init',               'to_e_VelProps',     conditions='in_init')
-        self.machine.add_transition('t_edit_VelProps',    'to_e_VelProps',      'edit_VelProps')
-        self.machine.add_transition('t_e_FilterProps',    'init',               'to_e_FilterProps',  conditions='in_init')
-        self.machine.add_transition('t_edit_FilterProps', 'to_e_FilterProps',   'edit_FilterProps')
-        self.machine.add_transition('t_e_GuideProps',     'init',               'to_e_GuideProps',   conditions='in_init')
-        self.machine.add_transition('t_edit_GuideProps',  'to_e_GuideProps',    'edit_GuideProps')        
-        self.machine.add_transition('t_finish_edit',      'edit_PosProps',      'init')
-        self.machine.add_transition('t_finish_edit',      'edit_VelProps',      'init')
-        self.machine.add_transition('t_finish_edit',      'edit_FilterProps',   'init')
-        self.machine.add_transition('t_finish_edit',      'edit_GuideProps',    'init')
+        self.machine.add_transition('t_edit_VelProps',         'to_e_VelProps',      'edit_VelProps')
+        self.machine.add_transition('t_e_FilterProps',         'init',               'to_e_FilterProps',  conditions='in_init')
+        self.machine.add_transition('t_edit_FilterProps',      'to_e_FilterProps',   'edit_FilterProps')
+        self.machine.add_transition('t_e_GuideProps',          'init',               'to_e_GuideProps',   conditions='in_init')
+        self.machine.add_transition('t_edit_GuideProps',       'to_e_GuideProps',    'edit_GuideProps')        
+        self.machine.add_transition('t_finish_edit',           'edit_PosProps',      'init')
+        self.machine.add_transition('t_finish_edit',           'edit_VelProps',      'init')
+        self.machine.add_transition('t_finish_edit',           'edit_FilterProps',   'init')
+        self.machine.add_transition('t_finish_edit',           'edit_GuideProps',    'init')
+        self.machine.add_transition('t_request_estop_clear',   'init',                'waiting_estop_clear')
+        self.machine.add_transition('t_request_estop_engage',   '*',                  'waiting_estop_engage')
+        self.machine.add_transition('t_idle',                   'waiting_estop_clear','idle')
 
 
         self._actprop = {}
@@ -68,6 +79,7 @@ class AxisStateMachine:
         self._setprop = {}
         self._prev_state = self.state
         self._init_achse_latched = False
+        self._estop_engaged_latched = False
 
 
     def update(self, actprop: dict, estop: dict, setprop: dict):
@@ -76,8 +88,11 @@ class AxisStateMachine:
         self._estop = estop
         self._setprop = setprop
         self._prev_state = self.state
+
         if getattr(self._actprop, "InitAchse", 0) == 1:
             self._init_achse_latched = True
+
+        
 
 
         try:
@@ -109,7 +124,7 @@ class AxisStateMachine:
                 self.t_online_waiting()
             
             elif self.state == AxisState.ONLINE_WAITING.value:
-                print(f"[StateMachine] In ONLINE state. Checking can_init:")
+                print(f"[StateMachine] In ONLINE_WAITING state. Checking can_init:")
                 print(f" - in_estop = {self.in_estop()}")
                 print(f" - InitAchse = {getattr(self._actprop, 'InitAchse', 'MISSING')}")
                 print(f" - InitAchseLatched = {self._init_achse_latched}")
@@ -161,6 +176,15 @@ class AxisStateMachine:
                 if self.is_ready() and self.no_fault():
                     print("[StateMachine] Recover complete, transitioning RECOVERING → IDLE")
                     self.resume()
+            elif self.state == AxisState.WAITING_ESTOP_CLEAR.value:
+                if self.is_ready():
+                    print("[StateMachine] EStop cleared — transitioning WAITING_ESTOP_CLEAR → IDLE")
+                    self.t_idle()
+
+            elif self.state == AxisState.WAITING_ESTOP_ENGAGE.value:
+                if self.in_estop():
+                    print("[StateMachine] E-Stop engaged confirmed — transitioning to OFFLINE")
+                    self.t_offline()
 
             # --- Emergency shutdown if estop engaged in operational states ---
             if self.in_estop() and self.state in {

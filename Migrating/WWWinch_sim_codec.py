@@ -55,16 +55,27 @@ class SimCodec(Codec):
         self.timeOld = time_now
         self.ActProp.LTOld = dt
 
-        #print(f"[SimCodec] Cycle time = {dt:.3f} s")
+        # Automatically clear/reset EsMaster based on reset flag
+        if self.ActProp.EStopReset:
+            # Simulate successful reset: all safety inputs become healthy
+            for attr in dir(self.EStop):
+                if attr.startswith("Es") and isinstance(getattr(self.EStop, attr), bool):
+                    setattr(self.EStop, attr, True)
 
-        #print(f"[SIMCodec] self.ActProp.EStopReset = {self.ActProp.EStopReset}")
+            self.EStop.EsReady = True  # explicitly ensure readiness
+            self.EStop.EsMaster = True
+            self.EStop.GUINotHalt = False
 
+        else:
+            # Simulate emergency state
+            for attr in dir(self.EStop):
+                if attr.startswith("Es") and isinstance(getattr(self.EStop, attr), bool):
+                    setattr(self.EStop, attr, False)
 
-        for attr in dir(self.EStop):
-            if attr.startswith("Es"):# and attr != "EsMaster":
-                if isinstance(getattr(self.EStop, attr), bool):
-                    setattr(self.EStop, self.ActProp.EStopReset, False)            
-
+            self.EStop.EsReady = False
+            self.EStop.EsMaster = False
+            self.EStop.EsNetwork = True  # backend still reachable
+            self.EStop.GUINotHalt = True
 
         self.Status = "SIMUL"
         self.GuideStatus = "SIMUL"
