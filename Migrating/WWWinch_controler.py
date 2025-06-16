@@ -23,6 +23,37 @@ bindings = {
     "Enable": {"source": "button_5"},
 }
 
+class TimingDiagnostics:
+    def __init__(self):
+        self.last_frame = None
+        self.stale_counter = 0
+
+    def check_backend_timing(self, frame_data: dict, label: str = "Backend"):
+        sync_tag = frame_data.get("SyncTag")
+        frame_id = frame_data.get("Frame")
+        timestamp = frame_data.get("Timestamp")
+
+        if sync_tag != 0xCAFEBABE:
+            print(f"[{label}] SyncTag mismatch or missing (got {sync_tag})")
+            return
+
+        if frame_id is not None:
+            if frame_id == self.last_frame:
+                self.stale_counter += 1
+                if self.stale_counter > 5:
+                    print(f"[{label}] Warning: Frame {frame_id} repeated {self.stale_counter} times")
+            else:
+                self.stale_counter = 0
+                self.last_frame = frame_id
+
+        if timestamp:
+            age_ms = (time.time() - timestamp) * 1000
+            print(f"[{label}] Frame {frame_id}, age: {age_ms:.2f} ms")
+            if age_ms > 200:
+                print(f"[{label}] Warning: Frame is stale (>200ms)")
+        else:
+            print(f"[{label}] No Timestamp in frame")
+
 class Controller:
     def __init__(self, ui):
         self.ui = ui  # Reference to the UI widget (AchseWidget)
@@ -50,8 +81,15 @@ class Controller:
         self._selected_axis_name = None
         self._prev_state = None
         self._write_countdown = 0
+        self.frame_count = 0
+        self._timing_diag = TimingDiagnostics()
 
         self._last_update_time = time.perf_counter()
+        self.estop_latch = False
+        self.EsReady_state = False
+        self.EStoprequested = False
+        self._estop_bit_initial = None
+
 
     def ensure_codec(self, axis_name):
         if axis_name == 'SIMUL':
@@ -61,7 +99,7 @@ class Controller:
             from WWWinch_codec import Codec
             self.Controler_Codec = Codec()
 
-    def start(self, interval_ms=100):
+    def start(self, interval_ms=10):
         """Start the periodic update timer."""
         self.timer.start(interval_ms)
 
@@ -88,10 +126,21 @@ class Controller:
 
         # Step 2: Read backend state → unpack into codec
         raw_props = self.get_props()
+        #self._timing_diag.check_backend_timing(raw_props)
         self.Controler_Codec.unpack(raw_props)
 
         # Step 3: Inject joystick input and re-unpack
         self.input_manager.inject(raw_props)
+        if self.estop_latch:
+            current = self.Controler_Codec.EStop.EsMaster
+            if current != self._estop_bit_initial:
+                print("[Controller] EStop latch complete: EsMaster changed.")
+                self.estop_latch = False
+                self._estop_bit_initial = None
+                self.Controler_Codec.ActProp.EStopReset = False
+            else:
+                self.Controler_Codec.ActProp.EStopReset = self.EStoprequested
+
         self.Controler_Codec.unpack(raw_props)
 
         # Step 4: State machine update
@@ -109,7 +158,9 @@ class Controller:
         # Always update stored state after transition check
         self._prev_state = current_state
 
-        print(f"[Controller] Step {self.step_count}: AxisName={axis_name}, State={current_state}")
+        if self.step_count % 10 == 0:
+            # Debugging output every 10 steps
+            print(f"[Controller] Step {self.step_count}: Current State={current_state}, AxisName={axis_name}")  
 
         # Step 5.5: Reset Modus if needed
         self._handle_write_countdown()        
@@ -196,7 +247,6 @@ class Controller:
         except Exception as e:
             print(f"[Controller] Error updating EStop UI: {e}")
         # Optionally, update other EStop-related UI elements here as needed
-
 
     def handle_axis_selection(self, axis_name: str):
             axis_name = axis_name.strip()
@@ -448,10 +498,16 @@ class Controller:
             print(f"[Controller] Error during write for {group}: {e}")
 
     def handle_click_EsReset(self):
-        self.set_all_estop_flags(True)
+        self.estop_latch = True
+        self._estop_bit_initial = self.Controler_Codec.EStop.EsMaster
+        self.EStoprequested = True  # or False
+        self.Controler_Codec.ActProp.EStopReset = self.EStoprequested
 
     def handle_click_EStop(self):
-        self.set_all_estop_flags(False)
+        self.estop_latch = True
+        self._estop_bit_initial = self.Controler_Codec.EStop.EsMaster
+        self.EStoprequested = False  # or False
+        self.Controler_Codec.ActProp.EStopReset = self.EStoprequested
 
     def to_e_PosProps(self):
         """Transition to edit position properties state."""
@@ -716,14 +772,13 @@ class Controller:
             root = getattr(root, attr)
         return root
 
-    def set_all_estop_flags(self, value: bool):
-        if not self.Controler_Codec:
+    def trigger_estop_reset(self, value: bool):
+        """
+        Trigger an emergency stop reset or EStop action.
+        """
+        if not self.Controler_Codec:    
             return
-        for attr in dir(self.Controler_Codec.EStop):
-            if attr.startswith("Es") and isinstance(getattr(self.Controler_Codec.EStop, attr), bool):
-                setattr(self.Controler_Codec.EStop, attr, value)
-
-        # Push updated EStop state to backend
+        self.Controler_Codec.ActProp.EStopReset = value
         self.set_props(self.Controler_Codec.to_dict({}))
 
     def start_backend(self, axis_name: str):
@@ -780,7 +835,14 @@ class Controller:
         print("[Controller] Shutdown complete.")
 
     def set_props(self, props: dict):
-        self.GUI2HW.write(props)
+        props = {
+            "SyncTag": 0xCAFEBABE,
+            "Frame": self.frame_count,
+            **self.Controler_Codec.to_dict({})
+        }
+        self.GUI2HW.write_pending(props)
+        self.frame_count += 1
 
     def get_props(self) -> dict:
-        return self.HW2GUI.read()
+        #return self.HW2GUI.read()
+        return self.HW2GUI.read_confirmed()

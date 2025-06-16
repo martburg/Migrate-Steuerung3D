@@ -57,6 +57,14 @@ class SimCodec(Codec):
 
         #print(f"[SimCodec] Cycle time = {dt:.3f} s")
 
+        #print(f"[SIMCodec] self.ActProp.EStopReset = {self.ActProp.EStopReset}")
+
+
+        for attr in dir(self.EStop):
+            if attr.startswith("Es"):# and attr != "EsMaster":
+                if isinstance(getattr(self.EStop, attr), bool):
+                    setattr(self.EStop, self.ActProp.EStopReset, False)            
+
 
         self.Status = "SIMUL"
         self.GuideStatus = "SIMUL"

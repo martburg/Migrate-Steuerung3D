@@ -5,6 +5,7 @@ import time
 import socket
 import argparse
 from multiprocessing import shared_memory
+import sys ,json
 
 MEM_NAME_GUI2HW = "achse_controler_to_hw"
 MEM_NAME_HW2GUI = "achse_hw_to_controler"
@@ -27,7 +28,7 @@ class backend_udp:
 
         self.GUI2HW  = Achsmemory(MEM_NAME_GUI2HW, wait=True)
         self.HW2GUI = Achsmemory(MEM_NAME_HW2GUI, wait=True)
-        self.HW2GUI.write({})
+
 
         self.Host    = ACHSEN[KontaktData][0]
         self.Port    = ACHSEN[KontaktData][1]
@@ -37,6 +38,7 @@ class backend_udp:
         self.recaddr = (self.RecHost,self.RecPort)
 
         self.receivedBuff = b"" 
+        self.frame_count = 0
 
         if KontaktData == 'SIMUL':
             self.Backend_Codec = SimCodec()
@@ -54,16 +56,30 @@ class backend_udp:
     def run(self):
         while True:
             try:
-                controler_in_data = self.GUI2HW.read()
+                #controler_in_data = self.GUI2HW.read()
+                controler_in_data = self.GUI2HW.read_pending()
 
                 self.Backend_Codec.unpack(controler_in_data)
                 Data = self.Backend_Codec.pack(controler_in_data)
+                #print(f"[Backend] Sending data: {Data}")
 
                 self.send(Data)
 
                 controler_out_data = self.receive()
+                #print(f"[Backend] Received data: {controler_out_data}")
 
-                self.HW2GUI.write(self.Backend_Codec.to_dict(controler_out_data))
+                frame_out = {
+                    "SyncTag": 0xCAFEBABE,
+                    "Frame": self.frame_count,
+                    "Timestamp": time.time(),
+                    **self.Backend_Codec.to_dict(controler_out_data)
+                }
+                # --- Perform write ---
+                self.HW2GUI.write_confirmed(frame_out)
+                self.frame_count += 1
+
+
+                self.GUI2HW.confirm_pending()
 
                 time.sleep(0.01)
             except KeyboardInterrupt:
