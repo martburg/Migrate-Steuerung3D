@@ -19,6 +19,8 @@ class GuidActProp:
 class GuideSetProp:
     Control          : str     = "GuideControl"
     SpeedSoll        : float   = 0.0
+    SpeedIstUI       : float   = 0.0
+    GuidePosIstUI    : float   = 0.0             # from 30            
     GuidePitch       : float   = -6.3            # from 27
     GuidePosMax      : float   = 0.9             # from 28
     GuidePosMaxMax   : float   = 0.9             # from 45
@@ -48,8 +50,8 @@ class AxisActProp:
     CabTemperature   : float   = 0.0              # from 7
     PosSoll          : float   = 0.0              # from UI
     SpeedSoll        : float   = 0.0              # from UI
-    AccMax           : float   = 0.0              # from UI modified
-    DccMax           : float   = 0.0              # from UI modified
+    AccMax              : float   = 0.0              # from UI modified
+    DccMax              : float   = 0.0              # from UI modified
     ReSync           : bool    = False            # from UI
     EStopStatus      : int     = 0                # from 37
     EStopCutTime     : float   = 0.0              # from 39

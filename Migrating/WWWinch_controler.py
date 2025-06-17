@@ -8,9 +8,9 @@ from input.input_manager import InputManager
 from input.pygame_joystick import PygameJoystickInput
 
 
-import subprocess
-import sys
-import os
+import subprocess,pprint
+import sys,json
+import os,hashlib
 import time,signal
 
 
@@ -21,6 +21,10 @@ MEM_NAME_HW2GUI = "achse_hw_to_controler"
 bindings = {
     "SpeedSoll": {"source": "axis_1", "scale": 32767},
     "Enable": {"source": "button_5"},
+    "acc_inc": {"source": "button_2"},
+    "acc_dec": {"source": "button_0"},
+    "dcc_inc": {"source": "button_3"},
+    "dcc_dec": {"source": "button_1"},
 }
 
 class TimingDiagnostics:
@@ -86,6 +90,11 @@ class Controller:
         self.ui.edit_commit_requested.connect(self.handle_commit_edit)
         self.ui.click_EsReset_requested.connect(self.handle_click_EsReset)
         self.ui.click_EStop_requested.connect(self.handle_click_EStop)
+        self.ui.click_Recover_requested.connect(self.handle_click_Recover)
+        self,ui.click_ReSync_requested.connect(self.handle_click_Resync)
+        self.ui.click_AxisReset_requested.connect(self.handle_click_AxisReset)
+        self.ui.click_GuideReset_requested.connect(self.handle_click_GuideReset)
+
 
         self._selected_axis_name = None
         self._prev_state = None
@@ -100,6 +109,16 @@ class Controller:
         self.EStoprequested = False
         self._estop_bit_initial = None
 
+        self._pending_config_hash = None
+        self._last_sent_setprop = None
+
+        self._resend_attempts = 0
+        self._last_sent_guide_setprop = None
+
+        self._acc_tuned = 0.0
+        self._dcc_tuned = 0.0
+
+
     def ensure_codec(self, axis_name):
         if axis_name == 'SIMUL':
             from WWWinch_sim_codec import SimCodec
@@ -108,7 +127,7 @@ class Controller:
             from WWWinch_codec import Codec
             self.Controler_Codec = Codec()
 
-    def start(self, interval_ms=100):
+    def start(self, interval_ms=10):
         """Start the periodic update timer."""
         self.timer.start(interval_ms)
 
@@ -139,8 +158,7 @@ class Controller:
         self.Controler_Codec.unpack(raw_props)
 
         # Step 3: Inject joystick input and re-unpack
-        self.input_manager.inject(raw_props)
-        self.Controler_Codec.unpack(raw_props)
+        self.handle_joystick_commands(raw_props)
 
         # Step 4: State machine update
         prev_state = getattr(self, '_prev_state', None)
@@ -151,7 +169,7 @@ class Controller:
         )
 
         # Step 5: Transition hook (trigger even on first-ever transition)
-        if prev_state is None or prev_state != current_state:
+        if prev_state is None or prev_state != current_state or current_state == 'waiting_write_confirm':
             self._on_state_transition(current_state)
 
         # Always update stored state after transition check
@@ -168,7 +186,11 @@ class Controller:
         if self.Controler_Codec:
             self.set_props(self.Controler_Codec.to_dict({}))
 
+
         # Step 7: Update UI
+        backend_state = self.HW2GUI.read_confirmed()
+        if backend_state:
+            self.Controler_Codec.unpack(backend_state)
         self.update_ui()
 
     def _on_state_transition(self, state):
@@ -188,6 +210,7 @@ class Controller:
                 print("[Controller] Entering moving: update UI for movement...")
             case "fault":
                 print("[Controller] Entering fault: show fault dialog or indicator...")
+                self.ui_edits(True)
             case "offline":
                 print("[Controller] Entering offline: disable controls...")
                 if self.Controler_Codec:
@@ -233,6 +256,33 @@ class Controller:
                 print("[Controller] Waiting for EStop engage to be confirmed...")
                 self.Controler_Codec.ActProp.EStopReset = False
                 self.ui_edits(False)         
+            case "waiting_write_confirm":
+                print("[Controller] Waiting for write confirmation from backend...")
+                chk = self._check_write_ack()
+                if chk == 0:
+                    print("[Controller] Write confirmed by backend.")
+                    self._resend_attempts = 0  # reset on success
+                elif chk == -1:
+                    print("[Controller] No pending write to confirm.")
+                elif chk == -2:
+                    print(f"[Controller] Write not confirmed yet, resending SetProp (attempt {self._resend_attempts+1})...")
+                    if  self._last_sent_setprop:
+                        props = self.Controler_Codec.to_dict({})
+
+                        # Overwrite with last intended values
+                        props["SetProp"] = self._last_sent_setprop.copy()
+                        if "Guide" not in props:
+                            props["Guide"] = {}
+                        props["Guide"]["SetProp"] = self._last_sent_guide_setprop.copy() if self._last_sent_guide_setprop else {}
+
+                        props["SyncTag"] = 0xCAFEBABE
+                        props["Frame"] = self.frame_count
+                        self.GUI2HW.write_pending(props)
+                        self.frame_count += 1
+                        self._resend_attempts += 1
+
+                        if self._resend_attempts >= 10:
+                            print("[Controller] Warning: 10 consecutive resend attempts — possible backend stall.")
             case _:
                 print(f"[Controller] Entering {state}: no specific handler.")
 
@@ -402,6 +452,9 @@ class Controller:
         except Exception as e:
             print(f"[Controller] Error during cancel for {group}: {e}")
 
+    def compute_hash(self, obj: dict) -> str:
+        return hashlib.sha1(json.dumps(obj, sort_keys=True).encode()).hexdigest()
+
     def handle_commit_edit(self, group):
         print(f"[Controller] Write requested for {group} properties.")
         try:
@@ -464,15 +517,28 @@ class Controller:
 
             # 2. Push props
             self.Controler_Codec.ActProp.Modus = "w"
-            self.set_props(self.Controler_Codec.to_dict({}))
-            self._write_countdown = 10
+            #self.set_props(self.Controler_Codec.to_dict({}))
+            setprop = self.Controler_Codec.to_dict({}).get("SetProp", {})
+            self._last_sent_setprop = setprop.copy()
+            self._last_sent_guide_setprop = self.Controler_Codec.to_dict({}).get("Guide", {}).get("SetProp", {}).copy()
+            combined_config = {
+                "SetProp": self._last_sent_setprop.copy(),
+                "Guide.SetProp": self._last_sent_guide_setprop.copy() if self._last_sent_guide_setprop else {},
+                }
+            self._resend_attempts = 0
+            self._pending_config_hash = self.compute_hash(combined_config)
+            self._write_countdown = 2
 
             # 3. Finish edit
-            print("[Controller] Comited — attempting to return to INIT via finish_edit.")
-            if hasattr(self.state_machine, "t_finish_edit"):
-                self.state_machine.t_finish_edit()
+            print("[Controller] Waiting — for write confirm.")
+            if hasattr(self.state_machine, "t_waiting_write_confirm"):
+                self.state_machine.t_waiting_write_confirm()
             else:
-                print("[Controller] Warning: finish_edit transition not available")
+                print("[Controller] Missing t_waiting_write_confirm")
+            #if hasattr(self.state_machine, "t_finish_edit"):
+            #    self.state_machine.t_finish_edit()
+            #else:
+            #    print("[Controller] Warning: finish_edit transition not available")
 
             # 4. Disable edit mode for group
             for widget_name, _ in bindings.items():
@@ -499,12 +565,78 @@ class Controller:
             if hasattr(ui, "btnEsReset"):
                 ui.btnEsReset.setEnabled(True)
 
-            self._prev_state = self.state_machine.state
-            print(f"[Controller] Finished editing {group}.")
+            #self._prev_state = self.state_machine.state
+            #print(f"[Controller] Finished editing {group}.")
 
         except Exception as e:
             print(f"[Controller] Error during write for {group}: {e}")
 
+    def _check_write_ack(self):
+        if not self._pending_config_hash:
+            return -1  # No pending write to confirm
+
+        # Get current backend-confirmed state
+        confirmed_frame = self.HW2GUI.read_confirmed()
+        if confirmed_frame:
+            self.Controler_Codec.unpack(confirmed_frame)
+        confirmed = self.Controler_Codec.to_dict({})
+
+        confirmed_setprop = confirmed.get("SetProp", {})
+        confirmed_guide_setprop = confirmed.get("Guide", {}).get("SetProp", {})
+
+        expected_setprop = self._last_sent_setprop or {}
+        expected_guide_setprop = self._last_sent_guide_setprop or {}
+
+        # Print comparison table
+        print("\n[Controller] === Comparing SetProp ===")
+        print("{:<24} | {:<24} | {:<24}".format("Key", "Sent", "Confirmed"))
+        print("-" * 76)
+        all_keys = sorted(set(expected_setprop.keys()).union(confirmed_setprop.keys()))
+        for key in all_keys:
+            sent = expected_setprop.get(key, "<missing>")
+            conf = confirmed_setprop.get(key, "<missing>")
+            print("{:<24} | {:<24} | {:<24}".format(key, str(sent), str(conf)))
+
+        print("\n[Controller] === Comparing Guide.SetProp ===")
+        print("{:<24} | {:<24} | {:<24}".format("Key", "Sent", "Confirmed"))
+        print("-" * 76)
+        guide_keys = sorted(set(expected_guide_setprop.keys()).union(confirmed_guide_setprop.keys()))
+        for key in guide_keys:
+            sent = expected_guide_setprop.get(key, "<missing>")
+            conf = confirmed_guide_setprop.get(key, "<missing>")
+            print("{:<24} | {:<24} | {:<24}".format(key, str(sent), str(conf)))
+        print("-" * 76)
+
+        # Combine for unified hash check
+        combined_expected = {
+            "SetProp": expected_setprop,
+            "Guide.SetProp": expected_guide_setprop,
+        }
+        combined_confirmed = {
+            "SetProp": confirmed_setprop,
+            "Guide.SetProp": confirmed_guide_setprop,
+        }
+
+        expected_hash = self._pending_config_hash
+        current_hash = self.compute_hash(combined_confirmed)
+
+        print(f"[Controller] expected hash = {expected_hash}")
+        print(f"[Controller] current hash  = {current_hash}")
+
+        if current_hash == expected_hash:
+            print("[Controller] Write confirmed by backend (SetProp + Guide.SetProp match).")
+            self._pending_config_hash = None
+            self.Controler_Codec.ActProp.Modus = "r"
+            if hasattr(self.state_machine, "t_confirm_write"):
+                self.state_machine.t_confirm_write()
+                return 0
+            else:
+                print("[Controller] Missing t_confirm_write transition.")
+                return -3
+        else:
+            print("[Controller] Waiting for write confirmation...")
+            return -2
+    
     def handle_click_EsReset(self):
         print("[Controller] EStop Reset button clicked.")
         self.Controler_Codec.ActProp.EStopReset = True
@@ -515,11 +647,66 @@ class Controller:
             print("[Controller] State machine does not support t_request_estop_clear transition.")
 
     def handle_click_EStop(self):
+        self.Controler_Codec.ActProp.EStopReset = False
         print("[Controller] EStop button clicked.")
         if hasattr(self.state_machine, 't_request_estop_engage'):
             self.state_machine.t_request_estop_engage()
         else:
             print("[Controller] State machine cannot transition to waiting_estop_engage")
+
+    def handle_click_Recover(self):
+        print("[Controller] Recover button clicked.")
+
+    def handle_click_Resync(self):
+        print("[Controller] Resync button clicked.")
+
+    def handle_click_AxisReset(self):
+        print("[Controller] Axis Reset button clicked.")
+
+    def handle_click_GuideReset(self):
+        print("[Controller] Guide Reset button clicked.")
+
+    def handle_joystick_commands(self, raw_props):
+        # Inject joystick values into raw_props and re-unpack
+        self.input_manager.inject(raw_props)
+        self.Controler_Codec.unpack(raw_props)
+
+        # Joystick-driven tuning for AccMax and DccMax
+        act = self.Controler_Codec.ActProp
+        setp = self.Controler_Codec.SetProp
+
+        # Don't read from ActProp — use the local shadow values
+        acc = self._acc_tuned
+        dcc = self._dcc_tuned
+
+        acc_limit = float(getattr(setp, "AccMax", 0.0))
+        dcc_limit = float(getattr(setp, "DccMax", 0.0))
+
+        step = 0.01
+
+
+        flags = raw_props.get("ActProp", {})
+        #print(f"[JoystickCommands] Flags: {flags}")
+
+        if flags.get("acc_inc"):
+            acc = min(acc + step, acc_limit)
+            #print(f"[JoystickCommands] Increasing AccMax: {acc} (limit: {acc_limit})")
+        if flags.get("acc_dec"):
+            acc = max(acc - step, 0.0)
+            #print(f"[JoystickCommands] Decreasing AccMax: {acc} (limit: {acc_limit})")
+        if flags.get("dcc_inc"):
+            dcc = min(dcc + step, dcc_limit)
+            #print(f"[JoystickCommands] Increasing DccMax: {dcc} (limit: {dcc_limit})")
+        if flags.get("dcc_dec"):
+            dcc = max(dcc - step, 0.0)
+            #print(f"[JoystickCommands] Decreasing DccMax: {dcc} (limit: {dcc_limit})")
+
+            # Save locally
+        self._acc_tuned = acc
+        self._dcc_tuned = dcc
+
+        act.AccMax = acc
+        act.DccMax = dcc
 
     def to_e_PosProps(self):
         """Transition to edit position properties state."""

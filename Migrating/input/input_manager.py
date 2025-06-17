@@ -5,6 +5,8 @@ class InputManager:
 
     def inject(self, props: dict):
         data = self.source.read()
+        #print(f"[Joystick Raw] {data}")
+
         actprop = props.setdefault("ActProp", {})
 
         for target_field, mapping in self.bindings.items():

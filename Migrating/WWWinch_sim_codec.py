@@ -37,10 +37,15 @@ class SimCodec(Codec):
         self.SetProp.AccTot = "5.00"
         self.SetProp.Rampform = "SIMUL"
 
-        self.GuidePitch = "-6.3"
-        self.GuidePosMax = "0.97"
-        self.GuidePosMaxMax = "0.97"
-        self.GuidePosMin = "0.01"
+        self.PosIst = "0.0"  # Current position
+        self.SpeedIstUI = "0.0"  # Current speed for UI display 
+        self.SpeedSoll = "0.0"  # Desired speed
+        self.PosUserMax = "298.0"  # User-defined maximum position
+        self.PosUserMin = "-298.0"  # User-defined minimum position
+        self.DccMax = "5.4"  # Maximum deceleration
+        self.AccMax = "5.5"  # Maximum acceleration
+        self.SpeedMax = "10.5"  # Maximum speed
+
 
 
     def simulate(self, IntervallR):
@@ -53,7 +58,6 @@ class SimCodec(Codec):
         else:
             dt = 0.0
         self.timeOld = time_now
-        self.ActProp.LTOld = dt
 
         # Automatically clear/reset EsMaster based on reset flag
         if self.ActProp.EStopReset:
@@ -65,6 +69,7 @@ class SimCodec(Codec):
             self.EStop.EsReady = True  # explicitly ensure readiness
             self.EStop.EsMaster = True
             self.EStop.GUINotHalt = False
+            self.ActProp.EStopStatus = 2048  # Reset status to indicate no emergency
 
         else:
             # Simulate emergency state
@@ -74,14 +79,11 @@ class SimCodec(Codec):
 
             self.EStop.EsReady = False
             self.EStop.EsMaster = False
-            self.EStop.EsNetwork = True  # backend still reachable
+            self.EStop.EsNetwork = False  # backend still reachable
             self.EStop.GUINotHalt = True
+            self.ActProp.EStopStatus = 4096  # Set status to indicate emergency
 
-        self.Status = "SIMUL"
-        self.GuideStatus = "SIMUL"
-        self.Enable = 0
-
-        if self.Enable == 1:
+        if self.ActProp.Enable == 1:
             SpeedIstIntern = float(self.SpeedIstUI)
             SpeedSollIntern = max(min(float(self.SpeedSoll), float(self.SpeedMax)), -float(self.SpeedMax))
 
@@ -108,15 +110,53 @@ class SimCodec(Codec):
 
             self.PosIst = str(float(self.PosIst) + SpeedIstIntern * IntervallR)
             self.SpeedIstUI = str(SpeedIstIntern)
+            print(f"[SimCodec] Simulated values: PosIst={self.PosIst}, SpeedIstUI={self.SpeedIstUI}, SpeedSoll={self.SpeedSoll}")
+
         else:
             self.SpeedIstUI = "0.0"
+        
+        # Update ActProp with simulated values
 
-        self.MasterMomentUI = "0.0"
-        self.CabTemperature = "22.2"
-        self.GuidePosIstUI = "0.0"
-        self.GuideIstSpeedUI = "0.0"
+        self.ActProp.LTOld               = dt                         # from 1
+        #self.ActProp.Status           : str     = "Status"           # from 2
+        #self.ActProp.Modus            : str     = "Modus"
+        self.ActProp.OwnPID                = 0
+        self.ActProp.ControlingPIDTx       = 0                        # from 0
+        self.ActProp.ControlingPIDRx       = 1234                     # Simulated PID Tx value
+        #self.ActProp.Intent           : str     = "False"
+        #self.ActProp.Enable           : bool    = False   
+        self.ActProp.PosIst              = 240 #self.PosIst
+        self.ActProp.LagError            = 12 #           
+        self.ActProp.SpeedIstUI          = 120# self.SpeedIstUI
+        self.ActProp.MasterMomentUI      = 250.0                        # from 6
+        self.ActProp.MotAuslastUI        = 1230.0                        # legacy
+        self.ActProp.ActCurUI            = 2340.0                        # from 32
+        self.ActProp.CabTemperature      = "22.2"
+        #self.ActProp.PosSoll          : float   = 0.0                # from UI
+        #self.ActProp.SpeedSoll        : float   = 0.0                # from UI
+        #self.ActProp.AccMax              = 2.0                # from UI modified
+        #self.ActProp.DccMax              = 1.0                # from UI modified
+        #self.ActProp.ReSync           : bool    = False              # from UI
+        self.ActProp.EStopStatus          = 0                         # from 37
+        self.ActProp.EStopCutTime        = 0.0                        # from 39
+        self.ActProp.EStopCutPos         = 0.0                        # from 40
+        self.ActProp.EStopCutVel         = 0.0                        # from 41
+        self.ActProp.EStopPosDiff        = 0.0               
+        #self.ActProp.EStopReset       : bool    = False              # from UI
+        #self.ActProp.InitAchse        : int     = 0                  # from UI    
 
-        self.EStopStatus = 2048
+        self.Guide.Control             = "GuideControl"
+        self.Guide.SpeedSoll           = 0.0
+        self.Guide.SpeedIstUI          = 0.0 
+        self.Guide.GuidePosIstUI       = 0.0                      # from 30
+        self.Guide.GuidePitch          = -6.3                     # from 27
+        self.Guide.GuidePosMax         = 0.9                      # from 28
+        self.Guide.GuidePosMaxMax      = 0.9                      # from 45
+        self.Guide.GuidePosMin         = 0.0                      # from 29
+
+
+
+        
         self.EsNetwork = True
         self.EsTaster = True
         self.EStopTime = 0

@@ -20,6 +20,10 @@ class Widget(QWidget):
     edit_commit_requested         = Signal(str)  # Signal to commit changes, will carry group name: "Pos", "Vel", "Filter", "Guide"
     click_EsReset_requested       = Signal()
     click_EStop_requested         = Signal()
+    click_Recover_requested       = Signal()
+    click_ReSync_requested        = Signal()
+    click_AxisReset_requested     = Signal()
+    click_GuideReset_requested    = Signal()
 
     def __init__(self):
         super().__init__()
@@ -37,88 +41,102 @@ class Widget(QWidget):
         self.Controller = None  # Will be set by Controller class
 
         self._bindings = {
-                "txtAccMax":          ("QLineEdit", "ActProp.AccMax", "{:.2f}"),
-                "txtAccMove":         ("QLineEdit", "SetProp.AccMax", "{:.2f}"),
-                "txtPosIst":          ("QLineEdit", "ActProp.PosIst", "{:.2f}"),
-                "txtActCurUI":        ("QLineEdit", "ActProp.ActCurUI", "{:.2f}"),
-                "txtStatus":          ("QLineEdit", "ActProp.Status", None),
-                "txtPosIst":         ("QLineEdit", "ActProp.PosIst", "{:.2f}"),
-                "txtCabTemperature":  ("QLineEdit", "ActProp.CabTemperature", "{:.2f}"),
-                "txtSpeedIstUI":      ("QLineEdit", "ActProp.SpeedIstUI", "{:.2f}"),
-                "txtEStopCutPos":     ("QLineEdit", "ActProp.EStopCutPos", "{:.2f}"),
-                "txtEStopPosDiff":    ("QLineEdit", "ActProp.EStopPosDiff", "{:.2f}"),
-                "txtEStopCutTime":    ("QLineEdit", "ActProp.EStopCutTime", "{:.2f}"),
-                "txtEStopCutVel":     ("QLineEdit", "ActProp.EStopCutVel", "{:.2f}"),
-                "txtDccMax":          ("QLineEdit", "ActProp.DccMax", "{:.2f}"),
-                "txtFilterD":         ("QLineEdit", "SetProp.FilterD", "{:.2f}"),
-                "txtRopeDiameter":    ("QLineEdit", "SetProp.RopeDiameter", "{:.2f}"),
-                "txtGuidePitch":      ("QLineEdit", "Guide.SetProp.GuidePitch", "{:.2f}"),
-                "txtGuidePosIstUI":   ("QLineEdit", "Guide.ActProp.GuidePosIstUI", "{:.2f}"),
-                "txtGuidePosMaxMax":  ("QLineEdit", "Guide.SetProp.GuidePosMaxMax", "{:.2f}"),
-                "txtGuidePosMax":     ("QLineEdit", "Guide.SetProp.GuidePosMax", "{:.2f}"),
-                "txtGuidePosMin":     ("QLineEdit", "Guide.SetProp.GuidePosMin", "{:.2f}"),
-                "txtGuideIstSpeedUI": ("QLineEdit", "Guide.ActProp.GuideIstSpeedUI", "{:.2f}"),
-                "txtGuideStatus":     ("QLineEdit", "Guide.ActProp.GuideStatus", None),
-                "txtHardMax":         ("QLineEdit", "SetProp.HardMax", "{:.2f}"),
-                "txtHardMin":         ("QLineEdit", "SetProp.HardMin", "{:.2f}"),
-                "txtFilterIL":        ("QLineEdit", "SetProp.FilterIL", "{:.2f}"),
-                "txtRopeLength":      ("QLineEdit", "SetProp.RopeLength", "{:.2f}"),
-                "txtMaxAmp":          ("QLineEdit", "SetProp.MaxAmp", "{:.2f}"),
-                "txtRopeNumber":      ("QLineEdit", "SetProp.RopeNumber", None),
-                "txtPosWin":          ("QLineEdit", "SetProp.PosWin", "{:.2f}"),
-                "txtFilterP":         ("QLineEdit", "SetProp.FilterP", "{:.2f}"),
-                "txtRampform":        ("QLineEdit", "SetProp.Rampform", None),
-                "txtRopeSWLL":            ("QLineEdit", "SetProp.RopeSWLL", "{:.2f}"),
-                #"txtSelected1":       ("QLineEdit", "ActProp.ControlingPIDTx", None),
-                #txtSelected2":        ("QLineEdit", "ActProp.ControlingPIDRx", None),
-                "txtTimeTick":        ("QLineEdit", "ActProp.LTOld", "{:.0f}"),
-                "txtRopeType":        ("QLineEdit", "SetProp.RopeType", None),
-                "txtUserMax":         ("QLineEdit", "SetProp.UserMax", "{:.2f}"),
-                "txtUserMin":         ("QLineEdit", "SetProp.UserMin", "{:.2f}"),
-                "txtVelMax":          ("QLineEdit", "SetProp.VelMax", "{:.2f}"),
-                "txtVelWin":          ("QLineEdit", "SetProp.VelWin", "{:.2f}"),
-                "txtFilterI":         ("QLineEdit", "SetProp.FilterI", "{:.2f}"),                
-                # RadioButtons 
-                #"cbFBT" :         ("QCheckBox", "EStop.EsFBT", None),
-                #"cbBrake1":       ("QCheckBox", "EStop.EsBrake1", None),
-                #"cbBrake2":       ("QCheckBox", "EStop.EsBrake2", None), 
-                "cbBrake1":       ("QCheckBox", "EStop.EsBRK1OK", None),
-                "cbBrake2":       ("QCheckBox", "EStop.EsBRK2OK", None),
-                "cbEsEStop1":     ("QCheckBox", "EStop.EsEStop1", None),
-                "cbEsEStop2":     ("QCheckBox", "EStop.EsEStop2", None),
-                "cbEs05kW":       ("QCheckBox", "EStop.Es05kWOK", None),
-                "cbEs30kW":       ("QCheckBox", "EStop.Es30kWOK", None),
-                "cbEsBRK1OK":     ("QCheckBox", "EStop.EsBRK1OK", None),
-                "cbEsBRK2OK":     ("QCheckBox", "EStop.EsBRK2OK", None),         
-                "cbEsBRK2KB":     ("QCheckBox", "EStop.EsBRK2KB", None),
-                "cbEsEndlage":    ("QCheckBox", "EStop.EsEndlage", None),
-                "cbEsG1COM":      ("QCheckBox", "EStop.EsG1COM", None),
-                "cbEsG1FB":       ("QCheckBox", "EStop.EsG1FB", None),
-                "cbEsG1OUT":      ("QCheckBox", "EStop.EsG1OUT", None),
-                "cbEsG2COM":      ("QCheckBox", "EStop.EsG2COM", None),
-                "cbEsG2FB":       ("QCheckBox", "EStop.EsG2FB", None),
-                "cbEsG2OUT":      ("QCheckBox", "EStop.EsG2OUT", None),
-                "cbEsG3COM":      ("QCheckBox", "EStop.EsG3COM", None),
-                "cbEsG3FB":       ("QCheckBox", "EStop.EsG3FB", None),
-                "cbEsG3OUT":      ("QCheckBox", "EStop.EsG3OUT", None),
-                "cbEsMaster":     ("QCheckBox", "EStop.EsMaster", None),
-                "cbEsGuider":     ("QCheckBox", "EStop.EsGuider", None),
-                "cbEsNetwork":    ("QCheckBox", "EStop.EsNetwork", None),
-                "cbEsPosWin":     ("QCheckBox", "EStop.EsPosWin", None),
-                "cbEsVelWin":     ("QCheckBox", "EStop.EsVelWin", None),
-                "cbEsEStop1":     ("QCheckBox", "EStop.EsEStop1", None),
-                "cbEsEStop2":     ("QCheckBox", "EStop.EsEStop2", None),
-                "cbEsSPS":        ("QCheckBox", "EStop.EsSPSOK", None),
-                "cbEsRED":        ("QCheckBox", "EStop.EsSteuerwort", None),
-                "cbEsENC":        ("QCheckBox", "EStop.EsENC", None),
-                "cbGuideOnline":  ("QCheckBox", "Guide.ActProp.GuideStatus", None),
-                "cbGuideReady":   ("QCheckBox", "Guide.ActProp.GuideStatus", None),
-                "cbOnline":       ("QCheckBox", "ActProp.Enable", None),
-                "cbReady":        ("QCheckBox", "EStop.EsReady", None),
-                # Sliders 
-                "sldAxisVel":     ("QSlider", "ActProp.SpeedSoll", None),
-                "sldGuideSpeed":  ("QSlider", "Guide.ActProp.GuideIstSpeedUI", None),
-            }
+            # --- SetProp ---
+            "txtAccMax":          ("QLineEdit", "SetProp.AccMax", "{:.2f}"),
+            "txtAccMove":         ("QLineEdit", "SetProp.AccMove", "{:.2f}"),
+            "txtDccMax":          ("QLineEdit", "SetProp.DccMax", "{:.2f}"),
+            "txtFilterD":         ("QLineEdit", "SetProp.FilterD", "{:.2f}"),
+            "txtFilterI":         ("QLineEdit", "SetProp.FilterI", "{:.2f}"),
+            "txtFilterIL":        ("QLineEdit", "SetProp.FilterIL", "{:.2f}"),
+            "txtFilterP":         ("QLineEdit", "SetProp.FilterP", "{:.2f}"),
+            "txtHardMax":         ("QLineEdit", "SetProp.HardMax", "{:.2f}"),
+            "txtHardMin":         ("QLineEdit", "SetProp.HardMin", "{:.2f}"),
+            "txtMaxAmp":          ("QLineEdit", "SetProp.MaxAmp", "{:.2f}"),
+            "txtPosWin":          ("QLineEdit", "SetProp.PosWin", "{:.2f}"),
+            "txtRampform":        ("QLineEdit", "SetProp.Rampform", None),
+            "txtRopeDiameter":    ("QLineEdit", "SetProp.RopeDiameter", "{:.2f}"),
+            "txtRopeLength":      ("QLineEdit", "SetProp.RopeLength", "{:.2f}"),
+            "txtRopeNumber":      ("QLineEdit", "SetProp.RopeNumber", None),
+            "txtRopeSWLL":        ("QLineEdit", "SetProp.RopeSWLL", "{:.2f}"),
+            "txtRopeType":        ("QLineEdit", "SetProp.RopeType", None),
+            "txtUserMax":         ("QLineEdit", "SetProp.UserMax", "{:.2f}"),
+            "txtUserMin":         ("QLineEdit", "SetProp.UserMin", "{:.2f}"),
+            "txtVelMax":          ("QLineEdit", "SetProp.VelMax", "{:.2f}"),
+            "txtVelWin":          ("QLineEdit", "SetProp.VelWin", "{:.2f}"),
+
+            # --- ActProp ---
+            "txtActCurUI":        ("QLineEdit", "ActProp.ActCurUI", "{:.2f}"),
+            "txtCabTemperature":  ("QLineEdit", "ActProp.CabTemperature", "{:.2f}"),
+            "txtEStopCutPos":     ("QLineEdit", "ActProp.EStopCutPos", "{:.2f}"),
+            "txtEStopCutTime":    ("QLineEdit", "ActProp.EStopCutTime", "{:.2f}"),
+            "txtEStopCutVel":     ("QLineEdit", "ActProp.EStopCutVel", "{:.2f}"),
+            "txtEStopPosDiff":    ("QLineEdit", "ActProp.EStopPosDiff", "{:.2f}"),
+            "txtPosIst":          ("QLineEdit", "ActProp.PosIst", "{:.2f}"),
+            "txtSpeedIstUI":      ("QLineEdit", "ActProp.SpeedIstUI", "{:.2f}"),
+            "txtStatus":          ("QLineEdit", "ActProp.Status", None),
+            "txtTimeTick":        ("QLineEdit", "ActProp.LTOld", "{:.0f}"),
+            "txtAcc":             ("QLineEdit", "ActProp.AccMax", "{:.2f}"),
+            "txtDcc":             ("QLineEdit", "ActProp.DccMax", "{:.2f}"),
+
+            # --- Guide.SetProp ---
+            "txtGuidePitch":      ("QLineEdit", "Guide.SetProp.GuidePitch", "{:.2f}"),
+            "txtGuidePosMax":     ("QLineEdit", "Guide.SetProp.GuidePosMax", "{:.2f}"),
+            "txtGuidePosMaxMax":  ("QLineEdit", "Guide.SetProp.GuidePosMaxMax", "{:.2f}"),
+            "txtGuidePosMin":     ("QLineEdit", "Guide.SetProp.GuidePosMin", "{:.2f}"),
+
+            # --- Guide.ActProp ---
+            "txtGuideIstSpeedUI": ("QLineEdit", "Guide.ActProp.GuideIstSpeedUI", "{:.2f}"),
+            "txtGuidePosIstUI":   ("QLineEdit", "Guide.ActProp.GuidePosIstUI", "{:.2f}"),
+            "txtGuideStatus":     ("QLineEdit", "Guide.ActProp.GuideStatus", None),
+
+            # --- EStop ---
+            # 🟨 These will be enabled later, leave as-is
+            #"cbFBT":              ("QCheckBox", "EStop.EsFBT", None),
+            #"cbBrake1":           ("QCheckBox", "EStop.EsBrake1", None),
+            #"cbBrake2":           ("QCheckBox", "EStop.EsBrake2", None),
+            "cbBrake1":           ("QCheckBox", "EStop.EsBRK1OK", None),
+            "cbBrake2":           ("QCheckBox", "EStop.EsBRK2OK", None),
+            "cbEs05kW":           ("QCheckBox", "EStop.Es05kWOK", None),
+            "cbEs30kW":           ("QCheckBox", "EStop.Es30kWOK", None),
+            "cbEsBRK1OK":         ("QCheckBox", "EStop.EsBRK1OK", None),
+            "cbEsBRK2KB":         ("QCheckBox", "EStop.EsBRK2KB", None),
+            "cbEsBRK2OK":         ("QCheckBox", "EStop.EsBRK2OK", None),
+            "cbEsENC":            ("QCheckBox", "EStop.EsENC", None),
+            "cbEsEndlage":        ("QCheckBox", "EStop.EsEndlage", None),
+            "cbEsEStop1":         ("QCheckBox", "EStop.EsEStop1", None),
+            "cbEsEStop2":         ("QCheckBox", "EStop.EsEStop2", None),
+            "cbEsG1COM":          ("QCheckBox", "EStop.EsG1COM", None),
+            "cbEsG1FB":           ("QCheckBox", "EStop.EsG1FB", None),
+            "cbEsG1OUT":          ("QCheckBox", "EStop.EsG1OUT", None),
+            "cbEsG2COM":          ("QCheckBox", "EStop.EsG2COM", None),
+            "cbEsG2FB":           ("QCheckBox", "EStop.EsG2FB", None),
+            "cbEsG2OUT":          ("QCheckBox", "EStop.EsG2OUT", None),
+            "cbEsG3COM":          ("QCheckBox", "EStop.EsG3COM", None),
+            "cbEsG3FB":           ("QCheckBox", "EStop.EsG3FB", None),
+            "cbEsG3OUT":          ("QCheckBox", "EStop.EsG3OUT", None),
+            "cbEsGuider":         ("QCheckBox", "EStop.EsGuider", None),
+            "cbEsMaster":         ("QCheckBox", "EStop.EsMaster", None),
+            "cbEsNetwork":        ("QCheckBox", "EStop.EsNetwork", None),
+            "cbEsPosWin":         ("QCheckBox", "EStop.EsPosWin", None),
+            "cbEsRED":            ("QCheckBox", "EStop.EsSteuerwort", None),
+            "cbEsSPS":            ("QCheckBox", "EStop.EsSPSOK", None),
+            "cbEsVelWin":         ("QCheckBox", "EStop.EsVelWin", None),
+            "cbReady":            ("QCheckBox", "EStop.EsReady", None),
+
+            # --- Other Checkboxes ---
+            "cbGuideOnline":      ("QCheckBox", "Guide.ActProp.GuideStatus", None),
+            "cbGuideReady":       ("QCheckBox", "Guide.ActProp.GuideStatus", None),
+            "cbOnline":           ("QCheckBox", "ActProp.Enable", None),
+
+            # --- Sliders ---
+            "sldAxisVel":         ("QSlider", "ActProp.SpeedSoll", None),
+            "sldGuideSpeed":      ("QSlider", "Guide.ActProp.GuideIstSpeedUI", None),
+
+            # --- 🟨 Legacy/Commented for future activation ---
+            #"txtSelected1":       ("QLineEdit", "ActProp.ControlingPIDTx", None),
+            #"txtSelected2":       ("QLineEdit", "ActProp.ControlingPIDRx", None),
+        }
+
         
         # Bind signals to slots
         self.ui.cmbAxisName.currentIndexChanged.connect(self._on_axis_select)
@@ -136,6 +154,10 @@ class Widget(QWidget):
         self.ui.btnGuideWrite.clicked.connect(lambda: self.edit_commit_requested.emit("Guide"))
         self.ui.btnEsReset.clicked.connect(self._on_click_EsReset)
         self.ui.btnEStop.clicked.connect(self._on_click_EStop)
+        self.ui.btnRecover.clicked.connect(self._on_click_Recover)
+        self.ui.btnReSync.clicked.connect(self._on_click_ReSync)
+        self.ui.btnAxisReset.clicked.connect(self._on_click_AxisReset)
+        self.ui.btnGuideReset.clicked.connect(self._on_click_GuideReset)
             
 
     def _load_ui(self):
@@ -177,6 +199,19 @@ class Widget(QWidget):
 
     def _on_click_EStop(self):
         self.click_EStop_requested.emit()
+
+    def _on_click_Recover(self):
+        self.click_Recover_requested.emit()
+
+    def _on_click_ReSync(self):
+        self.click_ReSync_requested.emit()
+
+    def _on_click_AxisReset(self):
+        self.click_AxisReset_requested.emit()
+
+    def _on_click_GuideReset(self):
+        self.click_GuideReset_requested.emit()
+
 
 
     def get_properties(self):
