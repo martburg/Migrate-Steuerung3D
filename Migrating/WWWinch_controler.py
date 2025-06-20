@@ -4,6 +4,8 @@ from WWWinch_achsmemory import Achsmemory
 from WWWinch_state_machine import AxisStateMachine
 from multiprocessing import shared_memory
 
+from Decoder import Decode
+
 from input.input_manager import InputManager
 from input.pygame_joystick import PygameJoystickInput
 
@@ -12,6 +14,7 @@ import subprocess,pprint
 import sys,json
 import os,hashlib
 import time,signal
+from datetime import datetime
 
 
 
@@ -19,12 +22,12 @@ MEM_NAME_GUI2HW = "achse_controler_to_hw"
 MEM_NAME_HW2GUI = "achse_hw_to_controler"
 
 bindings = {
-    "SpeedSoll": {"source": "axis_1", "scale": 32767},
-    "Enable": {"source": "button_5"},
-    "acc_inc": {"source": "button_2"},
-    "acc_dec": {"source": "button_0"},
-    "dcc_inc": {"source": "button_3"},
-    "dcc_dec": {"source": "button_1"},
+    "ActProp.SpeedSoll": {"source": "axis_1", "scale": -1.0},  # normalized
+    "ActProp.Enable":    {"source": "button_5"},
+    "acc_inc":           {"source": "button_2"},  # keep as raw trigger
+    "acc_dec":           {"source": "button_0"},
+    "dcc_inc":           {"source": "button_3"},
+    "dcc_dec":           {"source": "button_1"},
 }
 
 class TimingDiagnostics:
@@ -75,7 +78,7 @@ class Controller:
 
 
         self.Controler_Codec = None  # Defer instantiation
-        self.input_manager = InputManager(PygameJoystickInput(), bindings)
+        self.input_manager = InputManager(PygameJoystickInput())
         self.state_machine = AxisStateMachine()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
@@ -91,7 +94,8 @@ class Controller:
         self.ui.click_EsReset_requested.connect(self.handle_click_EsReset)
         self.ui.click_EStop_requested.connect(self.handle_click_EStop)
         self.ui.click_Recover_requested.connect(self.handle_click_Recover)
-        self,ui.click_ReSync_requested.connect(self.handle_click_Resync)
+        self.ui.click_ReSync_requested.connect(self.handle_click_Resync)
+
         self.ui.click_AxisReset_requested.connect(self.handle_click_AxisReset)
         self.ui.click_GuideReset_requested.connect(self.handle_click_GuideReset)
 
@@ -136,6 +140,8 @@ class Controller:
 
     def update(self):
         self.step_count += 1
+        timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]  # e.g. '21:46:02.187'
+
         now = time.perf_counter()
         self.dt = now - self._last_update_time
         self._last_update_time = now
@@ -175,9 +181,10 @@ class Controller:
         # Always update stored state after transition check
         self._prev_state = current_state
 
-        if self.step_count % 10 == 0:
-            # Debugging output every 10 steps
-            print(f"[Controller] Step {self.step_count}: Current State={current_state}, AxisName={axis_name}")  
+        if prev_state is None or prev_state != current_state:
+            print(f"[{timestamp} Controler] Step {self.step_count:06d} {current_state}", end="", flush=True)
+        elif current_state:
+            print(f"\r[{timestamp} Controler] Step {self.step_count:06d} {current_state}", end="", flush=True) 
 
         # Step 5.5: Reset Modus if needed
         self._handle_write_countdown()        
@@ -667,46 +674,55 @@ class Controller:
         print("[Controller] Guide Reset button clicked.")
 
     def handle_joystick_commands(self, raw_props):
-        # Inject joystick values into raw_props and re-unpack
-        self.input_manager.inject(raw_props)
-        self.Controler_Codec.unpack(raw_props)
+        signals = self.input_manager.read_signals()
 
-        # Joystick-driven tuning for AccMax and DccMax
         act = self.Controler_Codec.ActProp
         setp = self.Controler_Codec.SetProp
 
-        # Don't read from ActProp — use the local shadow values
         acc = self._acc_tuned
         dcc = self._dcc_tuned
-
         acc_limit = float(getattr(setp, "AccMax", 0.0))
-        dcc_limit = float(getattr(setp, "DccMax", 0.0))
-
+        dcc_limit = float(getattr(setp, "VelMax", 0.0))
+        vel_max = float(getattr(act, "DccMax", 0.0)) # FAKE FIELD AS WE HAVE NO VEL_MAX IN ACTPROP
         step = 0.01
 
+        for target_path, binding in bindings.items():
+            source_key = binding["source"]
+            scale = binding.get("scale", 1.0)
+            raw_value = signals.get(source_key)
 
-        flags = raw_props.get("ActProp", {})
-        #print(f"[JoystickCommands] Flags: {flags}")
+            if raw_value is None:
+                continue
 
-        if flags.get("acc_inc"):
-            acc = min(acc + step, acc_limit)
-            #print(f"[JoystickCommands] Increasing AccMax: {acc} (limit: {acc_limit})")
-        if flags.get("acc_dec"):
-            acc = max(acc - step, 0.0)
-            #print(f"[JoystickCommands] Decreasing AccMax: {acc} (limit: {acc_limit})")
-        if flags.get("dcc_inc"):
-            dcc = min(dcc + step, dcc_limit)
-            #print(f"[JoystickCommands] Increasing DccMax: {dcc} (limit: {dcc_limit})")
-        if flags.get("dcc_dec"):
-            dcc = max(dcc - step, 0.0)
-            #print(f"[JoystickCommands] Decreasing DccMax: {dcc} (limit: {dcc_limit})")
+            value = raw_value * scale if isinstance(raw_value, (int, float)) else raw_value
 
-            # Save locally
+            # ActProp assignment case
+            if target_path.startswith("ActProp."):
+                field = target_path.split(".")[1]
+                if field == "SpeedSoll":
+                    try:
+                        setattr(act, field, max(min(value * vel_max, vel_max), -vel_max))
+                        #print(f"[Controller] SpeedSoll ← {getattr(act, field):.2f} (from {source_key}={raw_value})")
+                    except Exception as e:
+                        print(f"[Controller] Failed to set SpeedSoll: {e}")
+                        setattr(act, field, 0.0)
+                elif field == "Enable":
+                    setattr(act, field, bool(raw_value))
+            # Logical triggers (acc_inc, dcc_dec, etc.)
+            elif target_path == "acc_inc" and raw_value:
+                acc = min(acc + step, acc_limit)
+            elif target_path == "acc_dec" and raw_value:
+                acc = max(acc - step, 0.0)
+            elif target_path == "dcc_inc" and raw_value:
+                dcc = min(dcc + step, dcc_limit)
+            elif target_path == "dcc_dec" and raw_value:
+                dcc = max(dcc - step, 0.0)
+
         self._acc_tuned = acc
         self._dcc_tuned = dcc
-
         act.AccMax = acc
         act.DccMax = dcc
+
 
     def to_e_PosProps(self):
         """Transition to edit position properties state."""
@@ -928,7 +944,7 @@ class Controller:
         for name, (widget_type, path, fmt) in self.ui._bindings.items():
             widget = self.ui.ui.findChild(self.ui.widget_classes[widget_type], name)
             if not widget:
-                print(f"[UI] Missing widget: {name}")
+                #print(f"[UI] Missing widget: {name}")
                 continue
 
             value = self.resolve_path(self.Controler_Codec, path)
@@ -949,7 +965,17 @@ class Controller:
             elif widget_type == "QRadioButton":
                 widget.setChecked(bool(value))
             elif widget_type == "QSlider":
-                widget.setValue(int(value))
+                if path == "ActProp.SpeedSoll":
+                    vel_max = float(self.Controler_Codec.ActProp.DccMax or 1.0)
+                    raw = float(value) / vel_max
+                    raw = max(min(raw, 1.0), -1.0)  # Clamp
+                    int_value = int(raw * self.ui.ui.sldAxisVel.maximum())  # rescale to slider range
+                    if widget.value() != int_value:
+                        widget.setValue(int_value)
+                else:
+                    int_value = int(value)
+                    if widget.value() != int_value:
+                        widget.setValue(int_value)
 
             #if hasattr(widget, "txtTimeTick"):
             self.ui.ui.txtTimeTick.setText(f"{self.dt * 1000:.1f}")
@@ -964,6 +990,15 @@ class Controller:
                     cb.setChecked(value)
                 except AttributeError:
                     print(f"[UI] Missing cbEs widget or EStop attribute: {name} / {estop_attr}")
+
+        status_raw = getattr(self.Controler_Codec.ActProp, "EStopStatus", 0)
+        decoder = Decode()
+        decoded, _ = decoder.Decode(str(status_raw))
+        message, *_ = decoded
+        if hasattr(self.ui.ui, "txtStatus"):
+            self.ui.ui.txtStatus.setText(message[2])
+            self.ui.ui.txtStatus.setStyleSheet(f"background-color: rgb{message[3]};")
+
 
     def resolve_path(self, root, path):
         """Resolve dot-path like 'ActProp.PosIst' from the given root object."""

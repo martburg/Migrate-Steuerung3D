@@ -1,5 +1,6 @@
 from transitions import Machine
 from enum import Enum, auto
+from Decoder import Decode
 
 class AxisState(str, Enum):
     OFFLINE =                "offline"
@@ -219,11 +220,19 @@ class AxisStateMachine:
     
     def has_fault(self):
         pass
-        #return getattr(self._actprop, "EStopStatus", 0) != 2048  # Assuming 2048 means no fault
+        estop_code = getattr(self._actprop, "EStopStatus", 0)
+        if str(estop_code) == "SIMUL":
+            return False
+        try:
+            decoded, _ = Decode().Decode(str(estop_code))
+            return decoded[0] == "1"  # Fault present
+        except Exception as e:
+            print(f"[StateMachine] Decode error: {e}")
+            return True  # Default to safe
 
     def no_fault(self):
         pass
-        #return getattr(self._actprop, "EStopStatus", 0) == 2048  # Assuming 2048 means no fault
+        return not self.has_fault() 
 
     def can_init(self):
         return self.in_estop() and self._init_achse_latched

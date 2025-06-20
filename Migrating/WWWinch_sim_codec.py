@@ -9,42 +9,42 @@ class SimCodec(Codec):
         self.timeOld = None
 
         self.SetProp.Name = "SIMUL"
-        self.SetProp.GearToUI = "13.0" 
-        self.SetProp.HardMax = "299"
-        self.SetProp.UserMax = "298"
-        self.SetProp.PosOffset = "0.0"
-        self.SetProp.UserMin = "-298"
-        self.SetProp.HardMin = "-299"
-        self.SetProp.PosWin = "0.01"
-        self.SetProp.VelMaxMot = "10.5"
-        self.SetProp.VelMax = "10.5"
-        self.SetProp.AccMax = "5.5"
-        self.SetProp.DccMax = "5.4"
-        self.SetProp.AccMove = "5.5"
-        self.SetProp.MaxAmp = "150"
-        self.SetProp.VelWin = "0.01"
-        self.SetProp.FilterP = "1.0"
-        self.SetProp.FilterI = "1.0"
-        self.SetProp.FilterD = "1.0"
-        self.SetProp.FilterIL = "1.0"
-        self.SetProp.RopeSWLL = "2500.0"
-        self.SetProp.RopeDiameter = "5.0"
-        self.SetProp.RopeType = "SIMUL"
-        self.SetProp.RopeNumber = "SIMUL"
-        self.SetProp.RopeLength = "200"
-        self.SetProp.SpeedMaxForUI = "16.25"
+        self.SetProp.GearToUI = float("13.0") 
+        self.SetProp.HardMax = float("299")
+        self.SetProp.UserMax = float("298")
+        self.SetProp.PosOffset = float("0.0")
+        self.SetProp.UserMin = float("-298")
+        self.SetProp.HardMin = float("-299")
+        self.SetProp.PosWin = float("0.01")
+        self.SetProp.VelMaxMot = float("10.5")
+        self.SetProp.VelMax = float("10.5")
+        self.SetProp.AccMax = float("5.5")
+        self.SetProp.DccMax = float("5.4")
+        self.SetProp.AccMove = float("5.5")
+        self.SetProp.MaxAmp = float("150")
+        self.SetProp.VelWin = float("0.01")
+        self.SetProp.FilterP = float("1.0")
+        self.SetProp.FilterI = float("1.0")
+        self.SetProp.FilterD = float("1.0")
+        self.SetProp.FilterIL = float("1.0")
+        self.SetProp.RopeSWLL = float("2500.0")
+        self.SetProp.RopeDiameter = float("5.0")
+        self.SetProp.RopeType = float("SIMUL")
+        self.SetProp.RopeNumber = float("SIMUL")
+        self.SetProp.RopeLength = float("200")
+        self.SetProp.SpeedMaxForUI = float("16.25")
         self.SetProp.PosDiffForUI = "SIMUL"
-        self.SetProp.AccTot = "5.00"
+        self.SetProp.AccTot = float("5.00")
         self.SetProp.Rampform = "SIMUL"
 
-        self.PosIst = "0.0"  # Current position
-        self.SpeedIstUI = "0.0"  # Current speed for UI display 
-        self.SpeedSoll = "0.0"  # Desired speed
-        self.PosUserMax = "298.0"  # User-defined maximum position
-        self.PosUserMin = "-298.0"  # User-defined minimum position
-        self.DccMax = "5.4"  # Maximum deceleration
-        self.AccMax = "5.5"  # Maximum acceleration
-        self.SpeedMax = "10.5"  # Maximum speed
+        self.PosIst = float("0.0")  # Current position
+        self.SpeedIstUI = float("0.0")  # Current speed for UI display 
+        self.SpeedSoll = float("0.0" ) # Desired speed
+        self.PosUserMax = float("298.0")  # User-defined maximum position
+        self.PosUserMin = float("-298.0")  # User-defined minimum position
+        self.DccMax = float("5.4")  # Maximum deceleration
+        self.AccMax = float("5.5")  # Maximum acceleration
+        self.SpeedMax = float("10.5")  # Maximum speed
 
 
 
@@ -83,60 +83,74 @@ class SimCodec(Codec):
             self.EStop.GUINotHalt = True
             self.ActProp.EStopStatus = 4096  # Set status to indicate emergency
 
-        if self.ActProp.Enable == 1:
-            SpeedIstIntern = float(self.SpeedIstUI)
-            SpeedSollIntern = max(min(float(self.SpeedSoll), float(self.SpeedMax)), -float(self.SpeedMax))
+        estop_triggered = any(bool(getattr(self.EStop, attr)) for attr in dir(self.EStop) if attr.startswith("Es"))
 
-            PosDiffG = float(self.PosUserMax) - float(self.PosIst)
-            if PosDiffG > 0:
-                SpeedMaxG = math.sqrt(float(self.DccMax) * PosDiffG)
-                SpeedSollIntern = min(SpeedSollIntern, SpeedMaxG)
-            elif SpeedSollIntern > 0:
-                SpeedSollIntern = 0.0
 
-            PosDiffG = float(self.PosIst) - float(self.PosUserMin)
-            if PosDiffG > 0:
-                SpeedMaxG = math.sqrt(float(self.DccMax) * PosDiffG)
-                SpeedSollIntern = max(SpeedSollIntern, -SpeedMaxG)
-            elif SpeedSollIntern < 0:
-                SpeedSollIntern = 0.0
+        if self.ActProp.Enable and not estop_triggered:
+            # Fetch limits from SetProp
+            pos_max = float(self.SetProp.UserMax)
+            pos_min = float(self.SetProp.UserMin)
+            acc_max = float(self.ActProp.AccMax)
+            dcc_max = float(self.SetProp.DccMax)
+            speed_max = float(self.SetProp.VelMax)
 
-            if SpeedSollIntern > SpeedIstIntern:
-                SpeedIstIntern += float(self.AccMax) * IntervallR
-                SpeedIstIntern = min(SpeedIstIntern, SpeedSollIntern)
-            elif SpeedSollIntern < SpeedIstIntern:
-                SpeedIstIntern -= float(self.DccMax) * IntervallR
-                SpeedIstIntern = max(SpeedIstIntern, SpeedSollIntern)
+            # Fetch current values from ActProp
+            pos = float(self.ActProp.PosIst)
+            speed_ist = float(self.ActProp.SpeedIstUI)
+            speed_soll = float(self.ActProp.SpeedSoll)
 
-            self.PosIst = str(float(self.PosIst) + SpeedIstIntern * IntervallR)
-            self.SpeedIstUI = str(SpeedIstIntern)
-            print(f"[SimCodec] Simulated values: PosIst={self.PosIst}, SpeedIstUI={self.SpeedIstUI}, SpeedSoll={self.SpeedSoll}")
+            # Clamp desired speed to within velocity limits
+            speed_soll = max(min(speed_soll, speed_max), -speed_max)
+
+            # Enforce positional stopping zones near the limits
+            if speed_soll > 0:
+                dist_to_max = pos_max - pos
+                if dist_to_max <= 0:
+                    speed_soll = 0.0
+                else:
+                    stop_speed = math.sqrt(dcc_max * dist_to_max)
+                    speed_soll = min(speed_soll, stop_speed)
+            elif speed_soll < 0:
+                dist_to_min = pos - pos_min
+                if dist_to_min <= 0:
+                    speed_soll = 0.0
+                else:
+                    stop_speed = math.sqrt(dcc_max * dist_to_min)
+                    speed_soll = max(speed_soll, -stop_speed)
+
+            # Integrate acceleration
+            if speed_soll > speed_ist:
+                speed_ist += acc_max * IntervallR
+                speed_ist = min(speed_ist, speed_soll)
+            elif speed_soll < speed_ist:
+                speed_ist -= dcc_max * IntervallR
+                speed_ist = max(speed_ist, speed_soll)
+
+            # Integrate position
+            pos += speed_ist * IntervallR
+
+            # Write back to ActProp
+            self.ActProp.PosIst = pos
+            self.ActProp.SpeedIstUI = speed_ist
+
+            #print(f"[SimCodec] Simulated PosIst={pos:.2f}, SpeedIstUI={speed_ist:.2f}, SpeedSoll={speed_soll:.2f}")
 
         else:
-            self.SpeedIstUI = "0.0"
+            self.ActProp.SpeedIstUI = 0.0
         
         # Update ActProp with simulated values
 
         self.ActProp.LTOld               = dt                         # from 1
-        #self.ActProp.Status           : str     = "Status"           # from 2
-        #self.ActProp.Modus            : str     = "Modus"
         self.ActProp.OwnPID                = 0
         self.ActProp.ControlingPIDTx       = 0                        # from 0
         self.ActProp.ControlingPIDRx       = 1234                     # Simulated PID Tx value
-        #self.ActProp.Intent           : str     = "False"
-        #self.ActProp.Enable           : bool    = False   
-        self.ActProp.PosIst              = 240 #self.PosIst
+
         self.ActProp.LagError            = 12 #           
-        self.ActProp.SpeedIstUI          = 120# self.SpeedIstUI
         self.ActProp.MasterMomentUI      = 250.0                        # from 6
         self.ActProp.MotAuslastUI        = 1230.0                        # legacy
         self.ActProp.ActCurUI            = 2340.0                        # from 32
-        self.ActProp.CabTemperature      = "22.2"
-        #self.ActProp.PosSoll          : float   = 0.0                # from UI
-        #self.ActProp.SpeedSoll        : float   = 0.0                # from UI
-        #self.ActProp.AccMax              = 2.0                # from UI modified
-        #self.ActProp.DccMax              = 1.0                # from UI modified
-        #self.ActProp.ReSync           : bool    = False              # from UI
+        self.ActProp.CabTemperature      = 22.2
+
         self.ActProp.EStopStatus          = 0                         # from 37
         self.ActProp.EStopCutTime        = 0.0                        # from 39
         self.ActProp.EStopCutPos         = 0.0                        # from 40
@@ -153,9 +167,6 @@ class SimCodec(Codec):
         self.Guide.GuidePosMax         = 0.9                      # from 28
         self.Guide.GuidePosMaxMax      = 0.9                      # from 45
         self.Guide.GuidePosMin         = 0.0                      # from 29
-
-
-
         
         self.EsNetwork = True
         self.EsTaster = True
@@ -186,15 +197,6 @@ class SimCodec(Codec):
         # Construct reply using updated ActProp
         self.receivedBuff = self.pack(self.to_dict({}))
         return self.receivedBuff
-    
-    def apply_config_from_setprop(self):
-        """
-        Apply SetProp to ActProp, and Guide.SetProp to Guide.ActProp,
-        while respecting legacy field structure and avoiding overwrite
-        of simulation-controlled fields like AccMax and DccMax.
-        """
-        pass
-
 
     def unpack(self, props: dict):
         """

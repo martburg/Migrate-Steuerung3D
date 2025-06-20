@@ -21,8 +21,10 @@ class PygameJoystickInput(InputSource):
         if not self.js:
             return {}
         pygame.event.pump()
-        return {
+        raw = {
             f"axis_{i}": self.js.get_axis(i) for i in range(self.js.get_numaxes())
         } | {
             f"button_{i}": self.js.get_button(i) for i in range(self.js.get_numbuttons())
         }
+        #print(f"[Joystick Raw] {raw}")
+        return raw

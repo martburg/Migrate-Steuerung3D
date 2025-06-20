@@ -157,10 +157,10 @@ QCheckBox::indicator:checked {
       <item>
        <widget class="QSlider" name="sldAxisVel">
         <property name="minimum">
-         <number>-32767</number>
+         <number>-10000</number>
         </property>
         <property name="maximum">
-         <number>32767</number>
+         <number>10000</number>
         </property>
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>
