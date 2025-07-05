@@ -29,8 +29,8 @@ class SimCodec(Codec):
         self.SetProp.FilterIL = float("1.0")
         self.SetProp.RopeSWLL = float("2500.0")
         self.SetProp.RopeDiameter = float("5.0")
-        self.SetProp.RopeType = float("SIMUL")
-        self.SetProp.RopeNumber = float("SIMUL")
+        self.SetProp.RopeType = "SIMUL"
+        self.SetProp.RopeNumber = "SIMUL"
         self.SetProp.RopeLength = float("200")
         self.SetProp.SpeedMaxForUI = float("16.25")
         self.SetProp.PosDiffForUI = "SIMUL"
